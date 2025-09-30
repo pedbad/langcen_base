@@ -1,12 +1,14 @@
-[tool.ruff]
-line-length = 88
+# ruff.toml (standalone config file)
 
-[tool.ruff.lint]
+# Global settings
+line-length = 100
+fix = true  # allow auto-fixes where possible
+
+[lint]
 # E = pycodestyle, F = pyflakes, I = isort (import sorting)
 select = ["E", "F", "I"]
-fix = true
 
-[tool.ruff.lint.isort]
-# Treat these as first-party once apps exist (safe placeholders for now)
+[lint.isort]
+# Treat these as first-party once apps exist
 known-first-party = ["core", "users", "config"]
 combine-as-imports = true
