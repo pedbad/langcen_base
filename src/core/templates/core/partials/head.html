@@ -1,0 +1,14 @@
+{% load static %}
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
+<title>{% block title %}langcen_base{% endblock %}</title>
+
+{# Tailwind build will eventually write to core/css/output.css #}
+<link rel="stylesheet" href="{% static 'core/css/output.css' %}">
+
+{# Page-specific meta tags (SEO, OG, etc.) #}
+{% block meta %}{% endblock %}
+
+{# Extra head content (inline styles, preloads, etc.) #}
+{% block head_extra %}{% endblock %}
