@@ -1,0 +1,12 @@
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+# E = pycodestyle, F = pyflakes, I = isort (import sorting)
+select = ["E", "F", "I"]
+fix = true
+
+[tool.ruff.lint.isort]
+# Treat these as first-party once apps exist (safe placeholders for now)
+known-first-party = ["core", "users", "config"]
+combine-as-imports = true
