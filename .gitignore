@@ -42,10 +42,14 @@ db.sqlite3-journal
 media/
 
 # ---- IDEs / Editors ----
+# VS Code
+*.code-workspace
 .vscode/
+
 .idea/
 *.swp
 *.swo
+
 
 # ---- npm / Node ----
 node_modules/
