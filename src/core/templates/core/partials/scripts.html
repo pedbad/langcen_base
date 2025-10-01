@@ -1,3 +1,8 @@
+<!-- src/core/templates/core/partials/scripts.html -->
 {% load static %}
 <script src="{% static 'core/js/main.js' %}" defer></script>
 {% block scripts %}{% endblock %}
+
+{% if debug %}
+  <script src="{% url 'django_browser_reload:reload' %}"></script>
+{% endif %}

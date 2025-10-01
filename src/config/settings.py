@@ -47,6 +47,10 @@ INSTALLED_APPS = [
     # "users",
 ]
 
+if DEBUG:
+    INSTALLED_APPS += ["django_browser_reload"]
+    INTERNAL_IPS = ["127.0.0.1", "::1"]
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -56,6 +60,9 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+if DEBUG:
+    MIDDLEWARE += ["django_browser_reload.middleware.BrowserReloadMiddleware"]
 
 ROOT_URLCONF = "config.urls"
 

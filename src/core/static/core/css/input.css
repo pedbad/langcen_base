@@ -1,0 +1,11 @@
+@source "./src/core/templates/**/*.html";
+@source "./src/**/*.py";
+
+/* Tailwind v4 core */
+@import "tailwindcss";
+
+/* Optional: your base layer tokens can go here later
+@theme {
+  --brand: #2563eb;
+}
+*/
