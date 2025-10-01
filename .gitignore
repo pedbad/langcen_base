@@ -74,3 +74,7 @@ core/static/css/output.css
 
 # Tailwind build artifact
 src/core/static/core/css/output.css
+
+# Email outbox (dev)
+tmp_emails/
+
