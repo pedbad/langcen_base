@@ -36,4 +36,24 @@
       </div>
     </div>
   </section>
+
+  <hr>
+  <div class="max-w-2xl mx-auto p-6 space-y-6">
+  <h1 class="text-3xl font-bold mb-4">Welcome</h1>
+  <p>This is the public landing page.</p>
+
+  <div class="border-t pt-4">
+    <h2 class="text-xl font-semibold mb-2">🔗 Quick Auth Links (dev only)</h2>
+    <ul class="list-disc pl-6 space-y-1">
+      <li><a href="{% url 'users:login' %}" class="underline">Login</a></li>
+      <li><a href="{% url 'users:logout' %}" class="underline">Logout</a></li>
+      <li><a href="{% url 'users:register' %}" class="underline">Register</a></li>
+      <li><a href="{% url 'users:password_reset' %}" class="underline">Password Reset (start)</a></li>
+      <li><a href="{% url 'users:student_home' %}" class="underline">Student Home (test only)</a></li>
+      <li><a href="{% url 'users:teacher_home' %}" class="underline">Teacher Home (test only)</a></li>
+      <li><a href="{% url 'users:admin_home' %}" class="underline">Admin Home (test only)</a></li>
+    </ul>
+  </div>
+</div>
+<hr>
 {% endblock %}

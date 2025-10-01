@@ -166,3 +166,14 @@ else:
     EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
     EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "1") == "1"
     DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "no-reply@example.com")
+
+
+# --- Users: role-based redirects (override per project) ---------------------
+USERS_ROLE_REDIRECTS = {
+    "student": "users:student_home",
+    "teacher": "users:teacher_home",
+    "admin": "users:admin_home",  # Django admin login still works at /admin/
+}
+
+# src/config/settings.py
+LOGOUT_REDIRECT_URL = "users:login"
