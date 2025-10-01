@@ -77,4 +77,3 @@ src/core/static/core/css/output.css
 
 # Email outbox (dev)
 tmp_emails/
-

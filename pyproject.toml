@@ -1,0 +1,17 @@
+# pyproject.toml
+
+[tool.ruff]
+line-length = 100
+fix = true
+
+[tool.ruff.lint]
+# E = pycodestyle, F = pyflakes, I = import sorting
+select = ["E", "F", "I"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["core", "users", "config"]
+combine-as-imports = true
+
+[tool.ruff.lint.per-file-ignores]
+# Ignore long lines in auto-generated Django migrations
+"src/**/migrations/*.py" = ["E501"]
