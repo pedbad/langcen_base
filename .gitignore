@@ -70,3 +70,7 @@ core/static/css/output.css
 .env
 .env.*
 !.env.example
+
+
+# Tailwind build artifact
+src/core/static/core/css/output.css
