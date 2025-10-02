@@ -32,8 +32,8 @@ cd langcen_base
 Install the pinned Python version and set it locally:
 
 ```bash
-pyenv install 3.13.2   # if not already installed
-pyenv local 3.13.2
+pyenv install 3.13.3   # if not already installed
+pyenv local 3.13.3
 ```
 
 Create a virtual environment (recommended):

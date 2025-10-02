@@ -49,7 +49,11 @@ INSTALLED_APPS = [
 ]
 
 if DEBUG:
-    INSTALLED_APPS += ["django_browser_reload"]
+    INSTALLED_APPS += [
+        "django_browser_reload",
+        "django_extensions",  # dev-only helper tools
+    ]
+
     INTERNAL_IPS = ["127.0.0.1", "::1"]
 
 

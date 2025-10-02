@@ -77,3 +77,8 @@ src/core/static/core/css/output.css
 
 # Email outbox (dev)
 tmp_emails/
+
+
+# Ignore real CSV data (keep only sample)
+data/*.csv
+!data/sample_students.csv
