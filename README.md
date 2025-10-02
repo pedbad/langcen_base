@@ -1,163 +1,179 @@
 # langcen_base
 
-Reusable Django + Tailwind base for eLearning projects with three roles (student, teacher, admin).
+Reusable Django + Tailwind scaffold for language centre projects.
 
-## Status
-Base project scaffolded with Django 5.2, Tailwind v4, and development tooling.
+This repo provides a clean starting point for building apps that need:
+- Custom user model with roles (student, teacher, admin)
+- Authentication (login, logout, register, password reset)
+- Tailwind CSS v4 integration (via npm)
+- Django Browser Reload for live dev refresh
+- Pre-commit hooks with Black + Ruff
+- Seed script for creating users from CSV files
+- Basic pytest test suite
 
-## Why
-Clone → rename → add new apps (e.g., exams, assessments) without redoing auth, layout, and tooling.
+---
 
-## Stack (planned)
-- Django 5.2 LTS (Python 3.13)
-- Tailwind v4 via npm (CLI)
-- pyenv for Python versions
-- Pre-commit hooks (Black, Ruff)
+## Table of Contents
+1. [Getting Started](#getting-started)
+2. [Project Structure](#project-structure)
+3. [Development](#development)
+4. [Seeding Students](#seeding-students)
+5. [Testing](#testing)
+6. [Contributing](#contributing)
+7. [License](#license)
 
-## Getting Started (Development)
+---
 
-### Prerequisites
-- [pyenv](https://github.com/pyenv/pyenv) installed
-- Python 3.13.2 (pinned in `.python-version`)
-- Git + npm
+## Getting Started
 
-### Setup
-Clone and enter the project folder:
-
+### Clone and set up
 ```bash
-git clone git@github.com:pedbad/langcen_base.git
+git clone https://github.com/pedbad/langcen_base.git
 cd langcen_base
 ```
 
-Install the pinned Python version and set it locally:
-
-```bash
-pyenv install 3.13.3   # if not already installed
-pyenv local 3.13.3
-```
-
-Create a virtual environment (recommended):
-
+### Python environment
 ```bash
 python -m venv venv
 source venv/bin/activate
+pip install -r requirements.txt
+pip install -r requirements-dev.txt  # for local dev helpers
 ```
 
-Upgrade pip:
-
-```bash
-pip install --upgrade pip
-```
-
-Install dependencies:
-
-```bash
-pip install -r requirements-dev.txt
-```
-
-Install npm packages:
-
+### Frontend (Tailwind)
 ```bash
 npm install
+npm run tw:watch   # watch Tailwind for changes
 ```
 
-## Development Tooling
-
-This project uses [pre-commit](https://pre-commit.com/), [Black](https://black.readthedocs.io/), and [Ruff](https://docs.astral.sh/ruff/) to keep the codebase consistent and clean.
-
-### One-time setup
-After creating and activating your `venv`:
-
+### Database
 ```bash
-pip install -r requirements-dev.txt
-pre-commit install
+python src/manage.py migrate
 ```
 
-### Running checks
-On every git commit, pre-commit will:
+### Run server
+```bash
+python src/manage.py runserver
+```
 
-- Strip trailing whitespace
-- Fix EOF newlines
-- Run Black (Python formatter)
-- Run Ruff (linter & import sorter)
+---
 
-To run checks manually on all files:
+## Project Structure
+
+```
+langcen_base/
+├── data/                          # seed CSVs (ignored in git except samples)
+│   └── sample_students.csv
+├── requirements.txt               # base dependencies
+├── requirements-dev.txt           # dev-only dependencies
+├── src/
+│   ├── config/                    # Django project settings
+│   ├── core/                      # base templates, public pages
+│   ├── users/                     # custom user app
+│   │   ├── management/commands/   # custom commands (e.g., seed_students)
+│   │   ├── templates/             # auth templates
+│   │   └── tests/                 # pytest suites
+└── README.md
+```
+
+---
+
+## Development
+
+### Key dev dependencies
+- `django-extensions` → shell_plus, show_urls, etc.
+- `django-browser-reload` → live reload during Tailwind dev.
+- `pre-commit` → lint + format hooks (Black + Ruff).
+
+### Running pre-commit hooks manually
 ```bash
 pre-commit run --all-files
 ```
 
-## Tailwind Setup
+---
 
-### CSS entrypoint
-Tailwind v4 is configured via `@source` in `src/core/static/core/css/input.css`:
+## Seeding Students
 
-```css
-@source "./src/core/templates/**/*.html";
-@source "./src/**/*.py";
+You can bulk-create student users from a CSV file using the custom `seed_students` command.
 
-@import "tailwindcss";
+**CSV format**:
+```csv
+email,first_name,last_name
+alice@example.com,Alice,Anderson
+bob@example.com,Bob,Barnes
+charlie@example.com,Charlie,Chaplin
 ```
 
-### Build scripts
-`package.json` contains:
-
-```json
-{
-  "scripts": {
-    "tw:build": "tailwindcss -i src/core/static/core/css/input.css -o src/core/static/core/css/output.css -m",
-    "tw:watch": "tailwindcss -i src/core/static/core/css/input.css -o src/core/static/core/css/output.css -w",
-    "dev": "concurrently -k \"npm:tw:watch\" \"venv/bin/python src/manage.py runserver\""
-  }
-}
+**Dry-run (preview only)**:
+```bash
+python src/manage.py seed_students data/sample_students.csv --default-password=ChangeMe123! --dry-run
 ```
 
-### Usage
-- One-off build:
-  ```bash
-  npm run tw:build
-  ```
+**Seed for real**:
+```bash
+python src/manage.py seed_students data/sample_students.csv --default-password=ChangeMe123!
+```
 
-- Watch (rebuild on change):
-  ```bash
-  npm run tw:watch
-  ```
+**Update existing users**:
+```bash
+python src/manage.py seed_students data/sample_students.csv --default-password=ChangeMe123! --update
+```
 
-- Run Django + Tailwind watcher together:
-  ```bash
-  npm run dev
-  ```
-  This starts Django on port **8000** and Tailwind watch in parallel.
-
-## Live Reload
-
-This project uses [django-browser-reload](https://github.com/adamchainz/django-browser-reload) in **development only**.
-
-- Installed in `requirements-dev.txt`
-- Enabled only when `DEBUG=True`
-- Injects a reload script via `scripts.html`
-
-When you save templates or Tailwind recompiles, the browser refreshes automatically.
+Options:
+- `--default-password` → applied if no per-row password is provided.
+- `--dry-run` → safe preview mode (no writes).
+- `--update` → update names/passwords of existing users.
 
 ---
 
-### Development workflows
+## Testing
 
-**Option A (classic Django):**
+We use `pytest` with `pytest-django`.
+
+Run the suite:
 ```bash
-source venv/bin/activate
-python src/manage.py runserver
-npm run tw:watch   # run separately in another terminal
+pytest -q
 ```
 
-**Option B (all-in-one):**
-```bash
-npm run dev
-```
-Runs Django + Tailwind watcher with live reload.
+All core areas are tested:
+- User model creation
+- Authentication flows (login/logout/redirects)
+- Password reset
+- Seeding students (dry-run/create/update)
 
 ---
 
-## Next Steps
-- Add base templates/partials (head, header, footer, scripts)
-- Create `users` app for authentication & role-based redirects
-- Expand core pages (landing, about)
+## Contributing
+
+Pull requests are welcome.
+For major changes, please open an issue first to discuss what you’d like to change.
+
+Make sure to run:
+```bash
+pre-commit run --all-files
+pytest -q
+```
+before submitting.
+
+---
+
+## License
+
+This project is licensed under the MIT License – see the [LICENSE](LICENSE) file for details.
+
+---
+
+## Badges (optional)
+
+You can add GitHub badges here for quick status:
+- Python version
+- Django version
+- Build/CI status
+- License
+
+Example (to replace once CI/CD is set up):
+```markdown
+![Python](https://img.shields.io/badge/python-3.13-blue)
+![Django](https://img.shields.io/badge/django-5.2-green)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+```
