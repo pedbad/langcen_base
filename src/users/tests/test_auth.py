@@ -1,10 +1,11 @@
 # src/users/tests/test_auth.py
+#
+# Purpose: End-to-end tests for login/logout and role-based redirects.
 
 import pytest
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 
-# Grab the custom User model we defined in users/models.py
 User = get_user_model()
 
 
@@ -12,7 +13,7 @@ User = get_user_model()
 @pytest.mark.parametrize(
     "role,expected_name",
     [
-        # Each tuple = (role we assign to the user, expected redirect view name)
+        # Each tuple = (role we assign, final view name we expect after login)
         ("student", "users:student_home"),
         ("teacher", "users:teacher_home"),
         ("admin", "users:admin_home"),
@@ -20,32 +21,57 @@ User = get_user_model()
 )
 def test_login_redirects_by_role(client, role, expected_name):
     """
-    GIVEN a user exists with a certain role (student/teacher/admin),
-    WHEN they log in via the login form,
-    THEN they should be redirected to the correct role-specific home page.
+    GIVEN a user with a specific role
+    WHEN they submit valid credentials to the login view
+    THEN they should end up on the role-appropriate landing page
     """
+    user = User.objects.create_user(email=f"{role}@ex.com", password="pass1234", role=role)
 
-    # 1) Create a user with the given role and a known password
-    user = User.objects.create_user(
-        email=f"{role}@ex.com",
-        password="pass1234",
-        role=role,
-    )
-
-    # 2) Build the login URL dynamically (users:login)
     login_url = reverse("users:login")
-
-    # 3) Simulate posting login credentials using Django's test client.
-    # Note: The login form expects "username" even though our model uses email,
-    # because Django maps USERNAME_FIELD ("email") internally to that key.
     resp = client.post(
         login_url,
+        # Django's auth forms expect "username" (mapped to USERNAME_FIELD, which is email)
         {"username": user.email, "password": "pass1234"},
-        follow=True,  # follow redirects so we end up at the landing page
+        follow=True,  # follow redirects to the final destination
     )
 
-    # 4) Assert we were redirected at least once
+    # We should have been redirected at least once
     assert resp.redirect_chain
-
-    # 5) Assert the final resolved view name matches the expected role mapping
+    # Final resolved view name should match the role's landing page
     assert resp.resolver_match.view_name == expected_name
+
+
+@pytest.mark.django_db
+def test_login_with_wrong_password_shows_error(client):
+    """
+    GIVEN a user exists
+    WHEN they submit a wrong password
+    THEN the login view should re-render with errors and NOT redirect
+    """
+    user = User.objects.create_user(email="wrong@ex.com", password="pass1234", role="student")
+
+    login_url = reverse("users:login")
+    resp = client.post(
+        login_url, {"username": user.email, "password": "not-the-password"}, follow=True
+    )
+
+    # No redirect; we remain on the login page (HTTP 200)
+    assert not resp.redirect_chain
+    assert resp.status_code == 200
+    # Ensure something sensible rendered
+    assert b"form" in resp.content
+
+
+@pytest.mark.django_db
+def test_logout_redirects_to_login(client):
+    """
+    GIVEN an authenticated session (or even anonymous)
+    WHEN we hit /users/logout/
+    THEN we should be redirected to the login page every time
+    """
+    logout_url = reverse("users:logout")
+    resp = client.get(logout_url, follow=True)
+
+    # We should land on the login view
+    assert resp.redirect_chain
+    assert resp.resolver_match.view_name == "users:login"
