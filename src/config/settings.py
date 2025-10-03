@@ -160,7 +160,8 @@ ENV = os.getenv("ENV", "dev")  # simple switch; default to dev
 
 if ENV == "dev":
     EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
-    EMAIL_FILE_PATH = BASE_DIR / "tmp_emails"
+    # Write to repo-root/tmp_emails
+    EMAIL_FILE_PATH = BASE_DIR.parent / "tmp_emails"
 else:
     # Example SMTP; configure via environment variables in production
     EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "django.core.mail.backends.smtp.EmailBackend")
