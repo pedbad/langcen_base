@@ -57,36 +57,36 @@ def test_seed_students_dry_run_uses_sample_csv_and_writes_nothing():
     assert User.objects.count() == 0
 
 
+def _project_data_csv(name: str) -> Path:
+    return Path(settings.BASE_DIR).parent / "data" / name
+
+
 @pytest.mark.django_db
 def test_seed_students_creates_users_with_default_password_from_sample_csv():
     """
-    GIVEN the sample CSV (3 rows)
+    GIVEN the sample CSV
     WHEN we run without --dry-run and WITH --default-password
-    THEN 3 users are created as students and the default password works.
+    THEN users for each CSV row are created as students with the given default password.
     """
     csv_path = _project_data_csv("sample_students.csv")
     default_pwd = "ChangeMe123!"
 
-    call_command(
-        "seed_students",
-        str(csv_path),
-        f"--default-password={default_pwd}",
-    )
+    # Build expected emails directly from the CSV to avoid test drift
+    with csv_path.open(newline="", encoding="utf-8") as f:
+        expected_emails = {
+            (row.get("email") or "").strip().lower()
+            for row in csv.DictReader(f)
+            if (row.get("email") or "").strip()
+        }
 
-    # We expect exactly those emails from sample_students.csv
-    expected_emails = {
-        "alice@example.com",
-        "bob@example.com",
-        "charlie@example.com",
-    }
+    call_command("seed_students", str(csv_path), f"--default-password={default_pwd}")
+
     got_emails = set(User.objects.values_list("email", flat=True))
     assert expected_emails == got_emails
 
-    # All are students; check one password quickly
     for u in User.objects.all():
         assert u.role == User.Roles.STUDENT
         assert u.is_active is True
-        # The seeded password should be usable and equal to default_pwd
         assert u.check_password(default_pwd)
 
 

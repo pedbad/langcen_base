@@ -92,37 +92,133 @@ pre-commit run --all-files
 
 ---
 
-## Seeding Students
 
-You can bulk-create student users from a CSV file using the custom `seed_students` command.
+# 📦 Seeding Students
 
-**CSV format**:
+You can bulk-create student users from a CSV file using the custom Django management command:
+
+```bash
+python src/manage.py seed_students
+```
+
+## 1. Prepare Your CSV
+
+Place your CSV file inside the `data/` folder (kept out of version control). Example:
+
+`data/students_2025.csv`
 ```csv
-email,first_name,last_name
-alice@example.com,Alice,Anderson
-bob@example.com,Bob,Barnes
-charlie@example.com,Charlie,Chaplin
+email,first_name,last_name,password
+alice@example.com,Alice,Anderson,Secret123!
+bob@example.com,Bob,Barnes,
+charlie@example.com,Charlie,Chaplin,
 ```
 
-**Dry-run (preview only)**:
+Notes:
+- `email` is **required**.
+- `first_name` and `last_name` are optional but recommended.
+- `password` column is optional:
+  - If provided, that value is used for the student’s initial password.
+  - If blank, the `--default-password` value is applied.
+  - If missing entirely (no `password` column in the CSV), a warning will be logged and password updates will be skipped.
+
+---
+
+## 2. Preview Before Writing (Dry-Run)
+
+Safe mode — shows what *would* happen but makes no changes:
+
 ```bash
-python src/manage.py seed_students data/sample_students.csv --default-password=ChangeMe123! --dry-run
+python src/manage.py seed_students data/students_2025.csv   --default-password=ChangeMe123!   --dry-run
 ```
 
-**Seed for real**:
-```bash
-python src/manage.py seed_students data/sample_students.csv --default-password=ChangeMe123!
+Example output:
+```
+== seed_students starting ==
+File: data/students_2025.csv
+Headers: ['email', 'first_name', 'last_name', 'password']
+Options: default_password=***, update=False, dry_run=True
+[row 1] would create: alice@example.com (student)
+[row 2] would create: bob@example.com (student)
+[row 3] would create: charlie@example.com (student)
+rows=3 created=3 updated=0 skipped=0 invalid_email=0 dry_run=True
+Done.
 ```
 
-**Update existing users**:
+---
+
+## 3. Create Users for Real
+
 ```bash
-python src/manage.py seed_students data/sample_students.csv --default-password=ChangeMe123! --update
+python src/manage.py seed_students data/students_2025.csv   --default-password=ChangeMe123!
+```
+
+This creates students with the given names and passwords. If no `password` in CSV, each gets `ChangeMe123!`.
+
+---
+
+## 4. Updating Existing Students
+
+You can rerun with `--update` to modify existing users:
+
+```bash
+# Update names only
+python src/manage.py seed_students data/students_2025.csv --update
+
+# Update with new per-row passwords
+python src/manage.py seed_students data/students_update.csv --update --send-welcome --site-domain=127.0.0.1:8000
+```
+
+Update rules:
+- Names are updated if different.
+- Passwords are updated **only** if the CSV includes a `password` column and value.
+- `--default-password` is ignored during updates to prevent accidental mass resets.
+
+---
+
+## 5. Sending Welcome Emails
+
+Use `--send-welcome` to send (or preview) welcome emails containing the login info and a password reset link:
+
+```bash
+python src/manage.py seed_students data/students_2025.csv   --default-password=ChangeMe123!   --send-welcome --site-domain=127.0.0.1:8000
 ```
 
 Options:
-- `--default-password` → applied if no per-row password is provided.
-- `--dry-run` → safe preview mode (no writes).
-- `--update` → update names/passwords of existing users.
+- `--site-domain` → required with `--send-welcome`. e.g. `127.0.0.1:8000` or `portal.example.edu`
+- `--use-https` → force https links (default: http)
+- `--from-email` → override sender address (default: `settings.DEFAULT_FROM_EMAIL`)
+
+Preview with dry-run:
+```bash
+python src/manage.py seed_students data/students_2025.csv   --default-password=ChangeMe123!   --send-welcome --site-domain=127.0.0.1:8000 --dry-run
+```
+
+Output:
+```
+[row 1] would create: alice@example.com (student)
+    would email: alice@example.com
+```
+
+---
+
+## 6. Summary of Options
+
+- `--default-password=PWD` → used for new accounts without a CSV password
+- `--update` → update names and (if provided) passwords for existing users
+- `--dry-run` → preview changes without touching the DB
+- `--send-welcome` → send (or preview) welcome emails
+- `--site-domain=HOST:PORT` → required with `--send-welcome`
+- `--use-https` → generate https links (default is http)
+- `--from-email=addr` → custom sender address
+
+---
+
+👉 With this guide in the README, someone new can:
+1. Drop a CSV into `data/`
+2. Run a dry-run preview
+3. Seed for real
+4. Optionally update or send welcome emails
+
 
 ---
 
