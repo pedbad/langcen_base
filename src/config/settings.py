@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -44,12 +45,21 @@ INSTALLED_APPS = [
     # "django_extensions",
     # Local apps
     "core",
-    # "users",
+    "users",
 ]
 
 if DEBUG:
-    INSTALLED_APPS += ["django_browser_reload"]
+    INSTALLED_APPS += [
+        "django_browser_reload",
+        "django_extensions",  # dev-only helper tools
+    ]
+
     INTERNAL_IPS = ["127.0.0.1", "::1"]
+
+
+# Use our custom user model (added below)
+AUTH_USER_MODEL = "users.User"
+
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -140,3 +150,34 @@ STATIC_ROOT = BASE_DIR / "staticfiles"  # for collectstatic in prod
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# --- Email (dev vs prod) ----------------------------------------------------
+# Dev: write emails to files (e.g., for password reset testing)
+# Prod: switch to SMTP via environment variables
+
+ENV = os.getenv("ENV", "dev")  # simple switch; default to dev
+
+if ENV == "dev":
+    EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
+    EMAIL_FILE_PATH = BASE_DIR / "tmp_emails"
+else:
+    # Example SMTP; configure via environment variables in production
+    EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "django.core.mail.backends.smtp.EmailBackend")
+    EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.sendgrid.net")
+    EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
+    EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
+    EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
+    EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "1") == "1"
+    DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "no-reply@example.com")
+
+
+# --- Users: role-based redirects (override per project) ---------------------
+USERS_ROLE_REDIRECTS = {
+    "student": "users:student_home",
+    "teacher": "users:teacher_home",
+    "admin": "users:admin_home",  # Django admin login still works at /admin/
+}
+
+# src/config/settings.py
+LOGOUT_REDIRECT_URL = "users:login"
