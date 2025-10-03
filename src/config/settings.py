@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # Third-party apps
+    "django_cotton",
     # "rest_framework",
     # "tailwind",
     # "django_extensions",

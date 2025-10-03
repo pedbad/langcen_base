@@ -1,5 +1,9 @@
 @source "./src/core/templates/**/*.html";
+@source "./src/core/templates/cotton/**/*.html";  /* NEW: shadcn-django components */
 @source "./src/**/*.py";
+
+@import "tailwindcss";
+
 
 /* Tailwind v4 core */
 @import "tailwindcss";
