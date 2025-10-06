@@ -9,12 +9,69 @@
     <strong>students</strong>, <strong>teachers</strong>, and <strong>admins</strong>.
   </p>
 
-  <div class="mt-6 space-x-3">
+  <div class="mt-6 space-x-3 bg-white">
     <c-button variant="default" size="xs">Cancel</c-button>
     <c-button variant="destructive">Continue</c-button>
-    <c-button variant="secondary" size="lg">Ghost</c-button>
-
+    <c-button variant="ghost" size="lg">Ghost</c-button>
   </div>
+
+
+  <section class="mt-10">
+    <h2 class="text-xl font-semibold">Login form (demo)</h2>
+
+    <c-card class="mt-4 max-w-md">
+      <c-slot name="header">
+        <h3 class="text-lg font-semibold leading-none tracking-tight">Sign in</h3>
+        <p class="text-sm text-muted-foreground">Use your email and password to continue.</p>
+      </c-slot>
+
+      <form method="post" action="#">
+        {% csrf_token %}
+
+        <div class="grid gap-4">
+          <div class="grid gap-2">
+            <c-label for="email">Email</c-label>
+            <c-input id="email" name="email" type="email" placeholder="you@example.com" autocomplete="email" required />
+          </div>
+
+          <div class="grid gap-2">
+            <c-label for="password">Password</c-label>
+            <c-input id="password" name="password" type="password" placeholder="••••••••" autocomplete="current-password" required />
+          </div>
+
+          <div class="flex items-center justify-between">
+            <label class="inline-flex items-center gap-2 text-sm">
+              <c-checkbox name="remember" id="remember" />
+              <span>Remember me</span>
+            </label>
+            <a href="#" class="text-sm text-primary hover:underline">Forgot password?</a>
+          </div>
+
+          <div class="flex gap-2">
+            <c-button type="submit" variant="default" class="w-full">Sign in</c-button>
+            <c-button type="button" variant="outline" class="w-full">Create account</c-button>
+          </div>
+        </div>
+      </form>
+    </c-card>
+  </section>
+
+
+  <div class="p-5" x-data>
+  <c-toast.trigger variant="outline" toast_target="toast-success">
+    Show Success Toast
+  </c-toast.trigger>
+</div>
+
+<c-toast id="toast-success">
+  <c-toast.content
+    type="default"
+    title="Success"
+    description="This is a success message"
+  >
+    <c-button>Share</c-button>
+  </c-toast.content>
+</c-toast>
 
 
 

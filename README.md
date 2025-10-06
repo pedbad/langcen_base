@@ -1,30 +1,33 @@
+
 # langcen_base
 
-Reusable Django + Tailwind scaffold for language centre projects.
+Reusable Django + Tailwind + ShadCN-Django scaffold for Language Centre projects.
 
-This repo provides a clean starting point for building apps that need:
+This repository provides a clean, modular starting point for building Django applications that need:
 - Custom user model with roles (student, teacher, admin)
 - Authentication (login, logout, register, password reset)
 - Tailwind CSS v4 integration (via npm)
-- Django Browser Reload for live dev refresh
-- Pre-commit hooks with Black + Ruff
+- ShadCN-Django components (via django-cotton)
+- Django Browser Reload for live development refresh
+- Pre-commit hooks (Black + Ruff)
 - Seed script for creating users from CSV files
-- Basic pytest test suite
+- Basic pytest suite for testing
 
 ---
 
-## Table of Contents
+## 🧭 Table of Contents
 1. [Getting Started](#getting-started)
 2. [Project Structure](#project-structure)
-3. [Development](#development)
-4. [Seeding Students](#seeding-students)
-5. [Testing](#testing)
-6. [Contributing](#contributing)
-7. [License](#license)
+3. [Frontend (Tailwind + ShadCN-Django)](#frontend-tailwind--shadcn-django)
+4. [Development](#development)
+5. [Seeding Students](#seeding-students)
+6. [Testing](#testing)
+7. [Contributing](#contributing)
+8. [License](#license)
 
 ---
 
-## Getting Started
+## 🚀 Getting Started
 
 ### Clone and set up
 ```bash
@@ -37,13 +40,7 @@ cd langcen_base
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-pip install -r requirements-dev.txt  # for local dev helpers
-```
-
-### Frontend (Tailwind)
-```bash
-npm install
-npm run tw:watch   # watch Tailwind for changes
+pip install -r requirements-dev.txt
 ```
 
 ### Database
@@ -58,7 +55,7 @@ python src/manage.py runserver
 
 ---
 
-## Project Structure
+## 🧱 Project Structure
 
 ```
 langcen_base/
@@ -68,7 +65,7 @@ langcen_base/
 ├── requirements-dev.txt           # dev-only dependencies
 ├── src/
 │   ├── config/                    # Django project settings
-│   ├── core/                      # base templates, public pages
+│   ├── core/                      # base templates, partials, and public pages
 │   ├── users/                     # custom user app
 │   │   ├── management/commands/   # custom commands (e.g., seed_students)
 │   │   ├── templates/             # auth templates
@@ -78,198 +75,148 @@ langcen_base/
 
 ---
 
-## Development
+## 🎨 Frontend (Tailwind + ShadCN-Django)
+
+This scaffold integrates **Tailwind CSS v4** with **ShadCN-Django** components via `django-cotton`.
+
+| Tool | Purpose | Installed via |
+|------|----------|----------------|
+| TailwindCSS v4 | Core utility framework | `npm install tailwindcss postcss autoprefixer` |
+| django-cotton | Renders ShadCN component templates | `pip install django-cotton` |
+| shadcn-django | CLI for managing ShadCN components | `pipx install shadcn-django` |
+
+### Initial setup
+```bash
+# install Tailwind deps
+npm install
+npx tailwindcss init -p
+
+# install shadcn-django CLI
+pipx install shadcn-django
+
+# initialize config and add components
+shadcn_django init
+shadcn_django add button input card
+```
+
+### Folder locations
+```
+templates/
+└── cotton/
+    └── button/
+        └── index.html
+src/core/static/core/css/input.css
+src/core/static/core/css/output.css
+```
+
+### Example component usage
+```html
+{% load component from django_cotton %}
+<div class="flex gap-2">
+  {% c button variant="outline" %}Cancel{% endc %}
+  {% c button variant="destructive" %}Delete{% endc %}
+</div>
+```
+
+### Development commands
+```bash
+npm run tw:watch        # watch Tailwind for changes
+npm run dev             # run Django + Tailwind concurrently
+```
+
+---
+
+## 🧑‍💻 Development
 
 ### Key dev dependencies
-- `django-extensions` → shell_plus, show_urls, etc.
-- `django-browser-reload` → live reload during Tailwind dev.
-- `pre-commit` → lint + format hooks (Black + Ruff).
+| Tool | Purpose |
+|------|----------|
+| django-extensions | shell_plus, show_urls, etc. |
+| django-browser-reload | auto-reload for template/CSS changes |
+| pre-commit | auto lint + format on commit (Black + Ruff) |
 
-### Running pre-commit hooks manually
+### Run pre-commit manually
 ```bash
 pre-commit run --all-files
 ```
 
 ---
 
+## 📦 Seeding Students
 
-# 📦 Seeding Students
-
-You can bulk-create student users from a CSV file using the custom Django management command:
+You can bulk-create student users from a CSV file:
 
 ```bash
 python src/manage.py seed_students
 ```
 
-## 1. Prepare Your CSV
-
-Place your CSV file inside the `data/` folder (kept out of version control). Example:
-
-`data/students_2025.csv`
-```csv
+### CSV example
+```
 email,first_name,last_name,password
 alice@example.com,Alice,Anderson,Secret123!
 bob@example.com,Bob,Barnes,
 charlie@example.com,Charlie,Chaplin,
 ```
 
-Notes:
-- `email` is **required**.
-- `first_name` and `last_name` are optional but recommended.
-- `password` column is optional:
-  - If provided, that value is used for the student’s initial password.
-  - If blank, the `--default-password` value is applied.
-  - If missing entirely (no `password` column in the CSV), a warning will be logged and password updates will be skipped.
-
----
-
-## 2. Preview Before Writing (Dry-Run)
-
-Safe mode — shows what *would* happen but makes no changes:
-
+### Dry-run mode
 ```bash
-python src/manage.py seed_students data/students_2025.csv   --default-password=ChangeMe123!   --dry-run
+python src/manage.py seed_students data/students_2025.csv --default-password=ChangeMe123! --dry-run
 ```
 
-Example output:
-```
-== seed_students starting ==
-File: data/students_2025.csv
-Headers: ['email', 'first_name', 'last_name', 'password']
-Options: default_password=***, update=False, dry_run=True
-[row 1] would create: alice@example.com (student)
-[row 2] would create: bob@example.com (student)
-[row 3] would create: charlie@example.com (student)
-rows=3 created=3 updated=0 skipped=0 invalid_email=0 dry_run=True
-Done.
-```
-
----
-
-## 3. Create Users for Real
-
+### Create users for real
 ```bash
-python src/manage.py seed_students data/students_2025.csv   --default-password=ChangeMe123!
+python src/manage.py seed_students data/students_2025.csv --default-password=ChangeMe123!
 ```
 
-This creates students with the given names and passwords. If no `password` in CSV, each gets `ChangeMe123!`.
-
----
-
-## 4. Updating Existing Students
-
-You can rerun with `--update` to modify existing users:
-
+### Update existing users
 ```bash
-# Update names only
 python src/manage.py seed_students data/students_2025.csv --update
-
-# Update with new per-row passwords
-python src/manage.py seed_students data/students_update.csv --update --send-welcome --site-domain=127.0.0.1:8000
 ```
 
-Update rules:
-- Names are updated if different.
-- Passwords are updated **only** if the CSV includes a `password` column and value.
-- `--default-password` is ignored during updates to prevent accidental mass resets.
-
----
-
-## 5. Sending Welcome Emails
-
-Use `--send-welcome` to send (or preview) welcome emails containing the login info and a password reset link:
-
+### Send welcome emails
 ```bash
-python src/manage.py seed_students data/students_2025.csv   --default-password=ChangeMe123!   --send-welcome --site-domain=127.0.0.1:8000
-```
-
-Options:
-- `--site-domain` → required with `--send-welcome`. e.g. `127.0.0.1:8000` or `portal.example.edu`
-- `--use-https` → force https links (default: http)
-- `--from-email` → override sender address (default: `settings.DEFAULT_FROM_EMAIL`)
-
-Preview with dry-run:
-```bash
-python src/manage.py seed_students data/students_2025.csv   --default-password=ChangeMe123!   --send-welcome --site-domain=127.0.0.1:8000 --dry-run
-```
-
-Output:
-```
-[row 1] would create: alice@example.com (student)
-    would email: alice@example.com
+python src/manage.py seed_students data/students_2025.csv --send-welcome --site-domain=127.0.0.1:8000
 ```
 
 ---
 
-## 6. Summary of Options
+## 🧪 Testing
 
-- `--default-password=PWD` → used for new accounts without a CSV password
-- `--update` → update names and (if provided) passwords for existing users
-- `--dry-run` → preview changes without touching the DB
-- `--send-welcome` → send (or preview) welcome emails
-- `--site-domain=HOST:PORT` → required with `--send-welcome`
-- `--use-https` → generate https links (default is http)
-- `--from-email=addr` → custom sender address
+We use **pytest** with **pytest-django**.
 
----
-
-👉 With this guide in the README, someone new can:
-1. Drop a CSV into `data/`
-2. Run a dry-run preview
-3. Seed for real
-4. Optionally update or send welcome emails
-
-
----
-
-## Testing
-
-We use `pytest` with `pytest-django`.
-
-Run the suite:
 ```bash
 pytest -q
 ```
 
-All core areas are tested:
+Test coverage includes:
 - User model creation
-- Authentication flows (login/logout/redirects)
+- Authentication flows
 - Password reset
-- Seeding students (dry-run/create/update)
+- Student seeding commands
 
 ---
 
-## Contributing
+## 🤝 Contributing
 
-Pull requests are welcome.
-For major changes, please open an issue first to discuss what you’d like to change.
+Pull requests are welcome!
+For major changes, open an issue first.
 
-Make sure to run:
+Before submitting:
 ```bash
 pre-commit run --all-files
 pytest -q
 ```
-before submitting.
 
 ---
 
-## License
+## ⚖️ License
 
-This project is licensed under the MIT License – see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ---
 
-## Badges (optional)
+## 🪄 Badges (optional)
 
-You can add GitHub badges here for quick status:
-- Python version
-- Django version
-- Build/CI status
-- License
-
-Example (to replace once CI/CD is set up):
-```markdown
-![Python](https://img.shields.io/badge/python-3.13-blue)
-![Django](https://img.shields.io/badge/django-5.2-green)
-![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
-```
+[Python](https://img.shields.io/badge/python-3.13-blue)
+[Django](https://img.shields.io/badge/django-5.2-green)
+[License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)

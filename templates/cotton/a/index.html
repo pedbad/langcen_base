@@ -1,5 +1,5 @@
-<c-vars variant="default" size="default"></c-vars>
-<button
+<c-vars size="default"></c-vars>
+<a
     class="
     inline-flex
     items-center
@@ -18,14 +18,9 @@
     [&_svg]:pointer-events-none
     [&_svg]:size-4
     [&_svg]:shrink-0
-
-    {% if variant == 'default' %}bg-primary text-primary-foreground shadow-sm hover:bg-primary/90
-    {% elif variant == 'destructive' %}bg-destructive text-destructive-foreground shadow-xs hover:bg-destructive/90
-    {% elif variant == 'outline' %}border border-input bg-background shadow-xs hover:bg-accent hover:text-accent-foreground
-    {% elif variant == 'secondary' %}bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80
-    {% elif variant == 'ghost' %}hover:bg-accent hover:text-accent-foreground
-    {% elif variant == 'link' %}text-primary underline-offset-4 hover:underline
-    {% endif %}
+    text-primary
+    underline-offset-4
+    hover:underline
 
     {% if size == 'default' %}h-9 px-4 py-2
     {% elif size == 'xs' %}h-7 rounded-sm px-2
@@ -41,4 +36,4 @@
     {{ attrs }}
 >
     {{ slot }}
-</button>
+</a>
