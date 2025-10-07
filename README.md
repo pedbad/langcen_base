@@ -22,24 +22,24 @@ This repository provides a clean, modular starting point for building Django app
 
 ## 🧭 Table of Contents
 
-1. [Getting Started](#getting-started)
-2. [Project Structure](#project-structure)
-3. [Frontend (Tailwind + ShadCN‑Django)](#frontend-tailwind--shadcn-django)
+1. [Getting Started](#-getting-started)
+2. [Project Structure](#-project-structure)
+3. [Frontend (Tailwind + ShadCN‑Django)](#-frontend-tailwind--shadcn-django)
    - [Requirements](#requirements)
    - [Install & Init](#install--init)
    - [Tailwind input.css](#tailwind-inputcss)
    - [Using Components](#using-components)
    - [Installed Components](#installed-components)
    - [Troubleshooting](#troubleshooting)
-4. [Development](#development)
-5. [Seeding Students](#seeding-students)
-6. [Testing](#testing)
-7. [License](#license)
-8. [Contributing](#contributing)
+4. [Development](#-development)
+5. [Seeding Students](#-seeding-students)
+6. [Testing](#-testing)
+7. [License](#-license)
+8. [Contributing](#-contributing)
 
 ---
 
-## 🚀 Getting Started
+<h2 id="getting-started">🚀 Getting Started</h2>
 
 ### Clone and set up
 
@@ -76,7 +76,7 @@ npm run dev
 
 ---
 
-## 🧱 Project Structure
+<h2 id="project-structure">🧱 Project Structure</h2>
 
 ```
 langcen_base/
@@ -100,7 +100,7 @@ langcen_base/
 
 ---
 
-## 🎨 Frontend (Tailwind + ShadCN‑Django)
+<h2 id="frontend-tailwind--shadcn-django">🎨 Frontend (Tailwind + ShadCN-Django)</h2>
 
 ShadCN‑Django components are plain Django templates powered by **django‑cotton**. We vendor (commit) the component templates under `templates/cotton/`, so every clone has the exact same UI building blocks without extra per‑machine steps (aside from installing Python/Node deps).
 
@@ -300,7 +300,7 @@ You can add more anytime with `shadcn_django add <name>` and commit the new fold
 
 ---
 
-## 🧑‍💻 Development
+<h2 id="development">🧑‍💻 Development</h2>
 
 ### Key dev dependencies
 
@@ -318,7 +318,7 @@ pre-commit run --all-files
 
 ---
 
-## 📦 Seeding Students
+<h2 id="seeding-students">📦 Seeding Students</h2>
 
 Bulk‑create student users from a CSV file:
 
@@ -364,7 +364,7 @@ python src/manage.py seed_students data/students_2025.csv \
 
 ---
 
-## 🧪 Testing
+<h2 id="testing">🧪 Testing</h2>
 
 We use **pytest** with **pytest‑django**.
 
@@ -380,13 +380,13 @@ Covers:
 
 ---
 
-## ⚖️ License
+<h2 id="license">⚖️ License</h2>
 
 This project is licensed under the MIT License – see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 🤝 Contributing
+<h2 id="contributing">🤝 Contributing</h2>
 
 Pull requests are welcome! For major changes, please open an issue first.
 
