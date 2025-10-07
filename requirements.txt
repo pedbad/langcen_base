@@ -1,3 +1,5 @@
 # Runtime dependencies for langcen_base
 Django==5.2.*
 django-cotton>=0.1.0
+django-unfold==0.67.0
+django-import-export==4.3.10

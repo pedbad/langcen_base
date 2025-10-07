@@ -32,6 +32,13 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    # Unfold must come before the default admin
+    "unfold",
+    # Unfold integration bits (optional but recommended when using import-export)
+    "unfold.contrib.import_export",
+    "unfold.contrib.filters",
+    "unfold.contrib.forms",
+    "unfold.contrib.inlines",
     # Django core apps
     "django.contrib.admin",
     "django.contrib.auth",
@@ -41,9 +48,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # Third-party apps
     "django_cotton",
+    "import_export",
     # "rest_framework",
-    # "tailwind",
-    # "django_extensions",
     # Local apps
     "core",
     "users",
@@ -56,6 +62,20 @@ if DEBUG:
     ]
 
     INTERNAL_IPS = ["127.0.0.1", "::1"]
+
+
+# ----------------------------------------------------------------------
+# Make Unfold/import-export optional in quirky environments
+# ----------------------------------------------------------------------
+try:
+    import unfold  # noqa
+except Exception:
+    INSTALLED_APPS = [app for app in INSTALLED_APPS if not app.startswith("unfold")]
+
+try:
+    import import_export  # noqa
+except Exception:
+    INSTALLED_APPS = [app for app in INSTALLED_APPS if app != "import_export"]
 
 
 # Use our custom user model (added below)
@@ -186,3 +206,20 @@ USERS_ROLE_REDIRECTS = {
 
 # src/config/settings.py
 LOGOUT_REDIRECT_URL = "users:login"
+
+
+# --- django-import-export ----------------------------------------------------
+IMPORT_EXPORT_USE_TRANSACTIONS = True
+IMPORT_EXPORT_SKIP_ADMIN_LOG = False
+
+
+# ----------------------------------------------------------------------
+# Unfold (Admin) Branding
+# ----------------------------------------------------------------------
+UNFOLD = {
+    "SITE_TITLE": "LangCen Admin",
+    "SITE_HEADER": "LangCen Admin",
+    "SITE_URL": "/admin/",
+    # Optionally add later:
+    # "SITE_LOGO": "core/img/logo.svg",  # must exist under static/
+}
