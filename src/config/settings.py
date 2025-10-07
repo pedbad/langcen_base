@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # Third-party apps
+    "django_cotton",
     # "rest_framework",
     # "tailwind",
     # "django_extensions",
@@ -79,7 +80,10 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "core" / "templates"],  # 👈 add this
+        "DIRS": [
+            BASE_DIR / "core" / "templates",  # app-level templates
+            BASE_DIR.parent / "templates",  # (project-root-level: shadcn/cotton lives here)
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [

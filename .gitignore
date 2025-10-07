@@ -83,3 +83,8 @@ src/tmp_emails/
 # Ignore real CSV data (keep only sample)
 data/*.csv
 !data/sample_students.csv
+
+# --- allow vendored JS libs (even .min.js) under core static ---
+!src/core/static/core/js/lib/
+!src/core/static/core/js/lib/**
+!src/core/static/core/js/lib/**/*.min.js

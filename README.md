@@ -1,64 +1,82 @@
 # langcen_base
 
-Reusable Django + Tailwind scaffold for language centre projects.
+![Python](https://img.shields.io/badge/python-3.13-blue)
+![Django](https://img.shields.io/badge/django-5.2-green)
+![Tailwind](https://img.shields.io/badge/tailwind-4.1-blueviolet)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 
-This repo provides a clean starting point for building apps that need:
-- Custom user model with roles (student, teacher, admin)
+Reusable **Django + Tailwind v4 + ShadCN‑Django** scaffold for Language Centre projects.
+
+This repository provides a clean, modular starting point for building Django applications that need:
+
+- Custom user model with roles (**student**, **teacher**, **admin**)
 - Authentication (login, logout, register, password reset)
 - Tailwind CSS v4 integration (via npm)
-- Django Browser Reload for live dev refresh
-- Pre-commit hooks with Black + Ruff
+- ShadCN‑Django components (rendered by **django‑cotton**)
+- Django Browser Reload for live development refresh
+- Pre‑commit hooks (Black + Ruff)
 - Seed script for creating users from CSV files
-- Basic pytest test suite
+- Basic pytest suite for testing
 
 ---
 
-## Table of Contents
-1. [Getting Started](#getting-started)
-2. [Project Structure](#project-structure)
-3. [Development](#development)
-4. [Seeding Students](#seeding-students)
-5. [Testing](#testing)
-6. [Contributing](#contributing)
-7. [License](#license)
+## 🧭 Table of Contents
+
+1. [Getting Started](#-getting-started)
+2. [Project Structure](#-project-structure)
+3. [Frontend (Tailwind + ShadCN‑Django)](#-frontend-tailwind--shadcn-django)
+   - [Requirements](#requirements)
+   - [Install & Init](#install--init)
+   - [Tailwind input.css](#tailwind-inputcss)
+   - [Using Components](#using-components)
+   - [Installed Components](#installed-components)
+   - [Troubleshooting](#troubleshooting)
+4. [Development](#-development)
+5. [Seeding Students](#-seeding-students)
+6. [Testing](#-testing)
+7. [License](#-license)
+8. [Contributing](#-contributing)
 
 ---
 
-## Getting Started
+<h2 id="getting-started">🚀 Getting Started</h2>
 
 ### Clone and set up
+
 ```bash
 git clone https://github.com/pedbad/langcen_base.git
 cd langcen_base
 ```
 
 ### Python environment
+
 ```bash
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-pip install -r requirements-dev.txt  # for local dev helpers
-```
-
-### Frontend (Tailwind)
-```bash
-npm install
-npm run tw:watch   # watch Tailwind for changes
+pip install -r requirements-dev.txt
 ```
 
 ### Database
+
 ```bash
 python src/manage.py migrate
 ```
 
-### Run server
+### Run server (two options)
+
 ```bash
+# classic
 python src/manage.py runserver
+
+# or: run Django + Tailwind watcher together
+npm run dev
 ```
+> `npm run dev` uses `concurrently` to run Tailwind watcher and Django’s dev server.
 
 ---
 
-## Project Structure
+<h2 id="project-structure">🧱 Project Structure</h2>
 
 ```
 langcen_base/
@@ -66,46 +84,250 @@ langcen_base/
 │   └── sample_students.csv
 ├── requirements.txt               # base dependencies
 ├── requirements-dev.txt           # dev-only dependencies
+├── templates/                     # shadcn-django component templates (django-cotton)
+│   └── cotton/
+│       └── … components live here
 ├── src/
 │   ├── config/                    # Django project settings
-│   ├── core/                      # base templates, public pages
-│   ├── users/                     # custom user app
-│   │   ├── management/commands/   # custom commands (e.g., seed_students)
-│   │   ├── templates/             # auth templates
-│   │   └── tests/                 # pytest suites
+│   ├── core/                      # base templates, partials, and public pages
+│   │   └── static/core/css/       # Tailwind input.css → output.css
+│   └── users/                     # custom user app
+│       ├── management/commands/   # e.g., seed_students
+│       ├── templates/             # auth templates
+│       └── tests/                 # pytest suites
 └── README.md
 ```
 
 ---
 
-## Development
+<h2 id="frontend-tailwind--shadcn-django">🎨 Frontend (Tailwind + ShadCN-Django)</h2>
+
+ShadCN‑Django components are plain Django templates powered by **django‑cotton**. We vendor (commit) the component templates under `templates/cotton/`, so every clone has the exact same UI building blocks without extra per‑machine steps (aside from installing Python/Node deps).
+
+### Requirements
+
+| Tool | Purpose | Installed via |
+|------|--------|----------------|
+| TailwindCSS v4 | Core utility framework | `npm install` (from repo `package.json`) |
+| django‑cotton | Component renderer | `pip install django-cotton` (in `requirements.txt`) |
+| shadcn‑django (CLI) | Add/update components into `templates/cotton/` | optional: `pipx install shadcn-django` |
+
+#### Settings required
+
+Ensure these are present in **`src/config/settings.py`**:
+
+```python
+INSTALLED_APPS = [
+    # … Django core apps …
+    "core",
+    "users",
+    "django_cotton",  # ← required for shadcn-django components
+]
+
+TEMPLATES = [
+    {
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [
+            BASE_DIR / "core" / "templates",   # app/site templates
+            BASE_DIR / "templates",            # ← shadcn-django components (templates/cotton/**)
+        ],
+        "APP_DIRS": True,
+        "OPTIONS": { "context_processors": [
+            "django.template.context_processors.request",
+            "django.contrib.auth.context_processors.auth",
+            "django.contrib.messages.context_processors.messages",
+        ]},
+    },
+]
+```
+
+> We commit the `templates/cotton/**` folder. Nothing else is needed at runtime besides installing Python/Node deps.
+
+### Install & Init
+
+If you want to **add more components** locally using the CLI:
+
+```bash
+# optional: install the CLI once
+pipx install shadcn-django
+
+# in the project root (where manage.py lives under src/)
+shadcn_django init         # creates/updates shadcn.config.json if needed
+
+# add components (one per command)
+shadcn_django add button
+shadcn_django add input
+shadcn_django add card
+# … etc.
+```
+
+> The CLI accepts **one component per command**. All generated files land in `templates/cotton/<component>/index.html`.
+
+### Tailwind input.css
+
+The Tailwind entry lives at **`src/core/static/core/css/input.css`** and is compiled to **`src/core/static/core/css/output.css`** by our npm scripts.
+
+**Key lines (already in this repo):**
+
+```css
+/* Tell Tailwind where to scan for classes */
+@source "./src/core/templates/**/*.html";
+@source "./templates/cotton/**/*.html";   /* shadcn-django components */
+@source "./src/**/*.py";
+
+/* Core Tailwind */
+@import "tailwindcss";
+
+/* Optional animations plugin — only if you install it */
+@import "tw-animate-css";
+
+/* Dark-mode variant that components expect */
+@custom-variant dark (&:is(.dark *));
+
+/* Design tokens (Tailwind v4 @theme) */
+@theme {
+  --color-background: oklch(1 0 0);
+  --color-foreground: oklch(0.145 0 0);
+  --color-card: oklch(1 0 0);
+  --color-card-foreground: oklch(0.145 0 0);
+  --color-popover: oklch(1 0 0);
+  --color-popover-foreground: oklch(0.145 0 0);
+  --color-primary: oklch(0.205 0 0);
+  --color-primary-foreground: oklch(0.985 0 0);
+  --color-secondary: oklch(0.97 0 0);
+  --color-secondary-foreground: oklch(0.205 0 0);
+  --color-muted: oklch(0.97 0 0);
+  --color-muted-foreground: oklch(0.556 0 0);
+  --color-accent: oklch(0.97 0 0);
+  --color-accent-foreground: oklch(0.205 0 0);
+  --color-destructive: oklch(0.577 0.245 27.325);
+  --color-destructive-foreground: oklch(0.985 0 0);
+  --color-border: oklch(0.922 0 0);
+  --color-input: oklch(0.922 0 0);
+  --color-ring: oklch(0.708 0 0);
+  --radius: 0.625rem;
+}
+
+/* Base layer using tokens */
+@layer base {
+  * { @apply border-border outline-ring/50; }
+  body { @apply bg-background text-foreground; }
+}
+```
+
+**Build/watch:**
+
+```bash
+npm run tw:watch        # Tailwind watcher
+# or
+npm run dev             # Tailwind watcher + Django server
+```
+
+### Using Components
+
+You can use components in **two equivalent ways**. Pick one style per block and don’t mix within the same component.
+
+**Option A — Native tags (recommended, no `{% load %}` needed):**
+
+```html
+<div class="flex gap-2">
+  <c-button variant="outline">Cancel</c-button>
+  <c-button variant="destructive">Delete</c-button>
+</div>
+
+<c-card class="mt-4 max-w-md">
+  <c-slot name="header">
+    <h3 class="text-lg font-semibold leading-none">Sign in</h3>
+    <p class="text-sm text-muted-foreground">Use your email and password.</p>
+  </c-slot>
+  <c-label for="email">Email</c-label>
+  <c-input id="email" name="email" type="email" value="{{ user.email|default:'' }}" />
+</c-card>
+```
+
+**Option B — Template tags (`{% c … %}{% endc %}`):**
+
+```django
+{% load _component _slot %}
+
+<div class="flex gap-2">
+  {% c button variant="outline" %}Cancel{% endc %}
+  {% c button variant="destructive" %}Delete{% endc %}
+</div>
+
+{% c card class="mt-4 max-w-md" %}
+  {% slot header %}
+    <h3 class="text-lg font-semibold leading-none">Sign in</h3>
+    <p class="text-sm text-muted-foreground">Use your email and password.</p>
+  {% endslot %}
+  {% c label for="email" %}Email{% endc %}
+  {% c input id="email" name="email" type="email" value="{{ user.email|default:'' }}" %}
+{% endc %}
+```
+
+> **Passing context is supported in both styles.** Use `{{ }}` for slotted content and plain attribute values for props (e.g., `value="{{ form.email.value }}"`).
+
+### Installed Components
+
+The repo currently includes (vendored under `templates/cotton/`):
+
+```
+a, accordion, alert, alert_dialog, badge, button, card, checkbox, combobox,
+command, command_dialog, dialog, dropdown_menu, form, input, label,
+navigation_menu, popover, progress, select, separator, sheet, table, tabs,
+textarea, toast
+```
+
+You can add more anytime with `shadcn_django add <name>` and commit the new folder(s).
+
+### Troubleshooting
+
+- **`TemplateDoesNotExist: cotton/.../index.html`**
+  Ensure `templates/` is listed in `TEMPLATES[0]["DIRS"]` and the component folder exists under `templates/cotton/`.
+
+- **`Invalid block tag … expected 'endc'`**
+  You’re mixing Option A and Option B. For `{% c … %}`, close with `{% endc %}` and use `{% slot … %}{% endslot %}`. For `<c-…>` style, just use HTML‑like tags.
+
+- **Styles don’t look right**
+  Confirm your `input.css` contains the `@source "./templates/cotton/**/*.html";` line and that `npm run tw:watch` is running. Regenerate the CSS if needed by saving a file or restarting the watcher.
+
+- **Vendored JS libraries ignored by git**
+  We keep third‑party JS (e.g., Alpine) under `src/core/static/core/js/lib/`. If you use a strict `.gitignore`, ensure it allows that path:
+  ```gitignore
+  !src/core/static/core/js/lib/
+  !src/core/static/core/js/lib/**
+  ```
+
+---
+
+<h2 id="development">🧑‍💻 Development</h2>
 
 ### Key dev dependencies
-- `django-extensions` → shell_plus, show_urls, etc.
-- `django-browser-reload` → live reload during Tailwind dev.
-- `pre-commit` → lint + format hooks (Black + Ruff).
 
-### Running pre-commit hooks manually
+| Tool | Purpose |
+|------|--------|
+| django‑extensions | shell_plus, show_urls, etc. |
+| django‑browser‑reload | auto‑reload for template/CSS changes |
+| pre‑commit | auto lint + format on commit (Black + Ruff) |
+
+**Run hooks manually:**
+
 ```bash
 pre-commit run --all-files
 ```
 
 ---
 
+<h2 id="seeding-students">📦 Seeding Students</h2>
 
-# 📦 Seeding Students
-
-You can bulk-create student users from a CSV file using the custom Django management command:
+Bulk‑create student users from a CSV file:
 
 ```bash
 python src/manage.py seed_students
 ```
 
-## 1. Prepare Your CSV
+### CSV example
 
-Place your CSV file inside the `data/` folder (kept out of version control). Example:
-
-`data/students_2025.csv`
 ```csv
 email,first_name,last_name,password
 alice@example.com,Alice,Anderson,Secret123!
@@ -113,163 +335,75 @@ bob@example.com,Bob,Barnes,
 charlie@example.com,Charlie,Chaplin,
 ```
 
-Notes:
-- `email` is **required**.
-- `first_name` and `last_name` are optional but recommended.
-- `password` column is optional:
-  - If provided, that value is used for the student’s initial password.
-  - If blank, the `--default-password` value is applied.
-  - If missing entirely (no `password` column in the CSV), a warning will be logged and password updates will be skipped.
-
----
-
-## 2. Preview Before Writing (Dry-Run)
-
-Safe mode — shows what *would* happen but makes no changes:
+### Dry‑run mode
 
 ```bash
-python src/manage.py seed_students data/students_2025.csv   --default-password=ChangeMe123!   --dry-run
+python src/manage.py seed_students data/students_2025.csv \
+  --default-password=ChangeMe123! --dry-run
 ```
 
-Example output:
-```
-== seed_students starting ==
-File: data/students_2025.csv
-Headers: ['email', 'first_name', 'last_name', 'password']
-Options: default_password=***, update=False, dry_run=True
-[row 1] would create: alice@example.com (student)
-[row 2] would create: bob@example.com (student)
-[row 3] would create: charlie@example.com (student)
-rows=3 created=3 updated=0 skipped=0 invalid_email=0 dry_run=True
-Done.
-```
-
----
-
-## 3. Create Users for Real
+### Create users for real
 
 ```bash
-python src/manage.py seed_students data/students_2025.csv   --default-password=ChangeMe123!
+python src/manage.py seed_students data/students_2025.csv \
+  --default-password=ChangeMe123!
 ```
 
-This creates students with the given names and passwords. If no `password` in CSV, each gets `ChangeMe123!`.
-
----
-
-## 4. Updating Existing Students
-
-You can rerun with `--update` to modify existing users:
+### Update existing users
 
 ```bash
-# Update names only
 python src/manage.py seed_students data/students_2025.csv --update
-
-# Update with new per-row passwords
-python src/manage.py seed_students data/students_update.csv --update --send-welcome --site-domain=127.0.0.1:8000
 ```
 
-Update rules:
-- Names are updated if different.
-- Passwords are updated **only** if the CSV includes a `password` column and value.
-- `--default-password` is ignored during updates to prevent accidental mass resets.
-
----
-
-## 5. Sending Welcome Emails
-
-Use `--send-welcome` to send (or preview) welcome emails containing the login info and a password reset link:
+### Send welcome emails
 
 ```bash
-python src/manage.py seed_students data/students_2025.csv   --default-password=ChangeMe123!   --send-welcome --site-domain=127.0.0.1:8000
-```
-
-Options:
-- `--site-domain` → required with `--send-welcome`. e.g. `127.0.0.1:8000` or `portal.example.edu`
-- `--use-https` → force https links (default: http)
-- `--from-email` → override sender address (default: `settings.DEFAULT_FROM_EMAIL`)
-
-Preview with dry-run:
-```bash
-python src/manage.py seed_students data/students_2025.csv   --default-password=ChangeMe123!   --send-welcome --site-domain=127.0.0.1:8000 --dry-run
-```
-
-Output:
-```
-[row 1] would create: alice@example.com (student)
-    would email: alice@example.com
+python src/manage.py seed_students data/students_2025.csv \
+  --send-welcome --site-domain=127.0.0.1:8000
 ```
 
 ---
 
-## 6. Summary of Options
+<h2 id="testing">🧪 Testing</h2>
 
-- `--default-password=PWD` → used for new accounts without a CSV password
-- `--update` → update names and (if provided) passwords for existing users
-- `--dry-run` → preview changes without touching the DB
-- `--send-welcome` → send (or preview) welcome emails
-- `--site-domain=HOST:PORT` → required with `--send-welcome`
-- `--use-https` → generate https links (default is http)
-- `--from-email=addr` → custom sender address
+We use **pytest** with **pytest‑django**.
 
----
-
-👉 With this guide in the README, someone new can:
-1. Drop a CSV into `data/`
-2. Run a dry-run preview
-3. Seed for real
-4. Optionally update or send welcome emails
-
-
----
-
-## Testing
-
-We use `pytest` with `pytest-django`.
-
-Run the suite:
 ```bash
 pytest -q
 ```
 
-All core areas are tested:
+Covers:
 - User model creation
-- Authentication flows (login/logout/redirects)
+- Authentication flows
 - Password reset
-- Seeding students (dry-run/create/update)
+- Student seeding (dry‑run/create/update)
 
 ---
 
-## Contributing
-
-Pull requests are welcome.
-For major changes, please open an issue first to discuss what you’d like to change.
-
-Make sure to run:
-```bash
-pre-commit run --all-files
-pytest -q
-```
-before submitting.
-
----
-
-## License
+<h2 id="license">⚖️ License</h2>
 
 This project is licensed under the MIT License – see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## Badges (optional)
+<h2 id="contributing">🤝 Contributing</h2>
 
-You can add GitHub badges here for quick status:
-- Python version
-- Django version
-- Build/CI status
-- License
+Pull requests are welcome! For major changes, please open an issue first.
 
-Example (to replace once CI/CD is set up):
-```markdown
+Before submitting:
+
+```bash
+pre-commit run --all-files
+pytest -q
+```
+
+---
+
+## 🪄 Badges (optional)
+
 ![Python](https://img.shields.io/badge/python-3.13-blue)
 ![Django](https://img.shields.io/badge/django-5.2-green)
+![Tailwind](https://img.shields.io/badge/tailwind-4.1-blueviolet)
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
-```
+
+---
