@@ -219,7 +219,22 @@ IMPORT_EXPORT_SKIP_ADMIN_LOG = False
 UNFOLD = {
     "SITE_TITLE": "LangCen Admin",
     "SITE_HEADER": "LangCen Admin",
-    "SITE_URL": "/admin/",
+    # "SITE_URL": "/admin/",
+    # 1) where "View site" should go:
+    "SITE_URL": "/",  # your main site root (or full URL)
+    # 2) ensure the menu entry is shown:
+    "SHOW_VIEW_ON_SITE": True,
+    # (optional) a dropdown under the site title (top-left) with a link home:
+    "SITE_DROPDOWN": [
+        {"icon": "home", "title": "Back to site", "link": "/"},
+        # Example to open in a new tab:
+        # {
+        #     "icon": "home",
+        #     "title": "Back to site",
+        #     "link": "/",
+        #     "attrs": {"target": "_blank"},
+        # },
+    ],
     # Optionally add later:
     # "SITE_LOGO": "core/img/logo.svg",  # must exist under static/
 }
