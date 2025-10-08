@@ -1,11 +1,19 @@
 {% load static %}
-<!-- Alpine must come before scripts that use it -->
 <script src="{% static 'core/js/lib/alpine-3.14.1.min.js' %}" defer></script>
+<!-- main.js MUST NOT be deferred so it registers `alpine:init` before Alpine runs -->
 
-<!-- global app bundle -->
-<script src="{% static 'core/js/main.js' %}" defer></script>
+<script>
+  // ✅ ensure Alpine always starts
+  window.deferLoadingAlpine = function (callback) {
+    callback();
+    window.Alpine.start();
+  };
+</script>
+
+<script src="{% static 'core/js/main.js' %}"></script>
+
 {% block scripts %}{% endblock %}
 
 {% if debug %}
-  <script src="{% url 'django_browser_reload:reload' %}"></script>
+  <script src="{% url 'django_browser_reload:reload' %}" defer></script>
 {% endif %}

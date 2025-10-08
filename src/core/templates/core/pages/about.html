@@ -73,6 +73,30 @@
   </c-toast.content>
 </c-toast>
 
+<br>
+<div class="mt-4 text-2xl" x-data>
+  <div>Theme = <span x-text="$store.theme.value"></span></div>
+  <button @click="$store.theme.set('light')" class="border px-2 py-1">Light</button>
+  <button @click="$store.theme.set('dark')" class="border px-2 py-1 ml-2">Dark</button>
+  <button @click="$store.theme.set('system')" class="border px-2 py-1 ml-2">System</button>
+</div>
+
+
+<br>
+<c-dropdown-menu>
+    <c-button variant='outline'>
+        <c-dropdown-menu.trigger>Open</c-dropdown-menu.trigger>
+    </c-button>
+    <c-dropdown-menu.content class='w-56'>
+        <c-dropdown-menu.label>My Account</c-dropdown-menu.label>
+        <c-dropdown-menu.separator />
+        <c-dropdown-menu.item>Profile</c-dropdown-menu.item>
+        <c-dropdown-menu.item>Billing</c-dropdown-menu.item>
+        <c-dropdown-menu.separator />
+        <c-dropdown-menu.item>Settings</c-dropdown-menu.item>
+    </c-dropdown-menu.content>
+</c-dropdown-menu>
+
 
 
 

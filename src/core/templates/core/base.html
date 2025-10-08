@@ -4,7 +4,8 @@
   <head>
     {% include "core/partials/head.html" %}
   </head>
-  <body class="min-h-screen flex flex-col">
+  <body class="min-h-screen flex flex-col"
+        data-env="{% if debug %}dev{% else %}prod{% endif %}">
     {% include "core/partials/header.html" %}
 
     <main class="pt-16 flex-grow bg-slate-100">

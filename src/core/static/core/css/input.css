@@ -9,6 +9,10 @@
 /* Optional animations plugin — only if you install it */
 @import "tw-animate-css";
 
+/* Prevent Alpine flash for things hidden with x-cloak */
+[x-cloak] { display: none !important; }
+
+
 /* Dark-mode variant the config expects */
 @custom-variant dark (&:is(.dark *));
 

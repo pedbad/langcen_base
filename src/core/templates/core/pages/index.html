@@ -1,8 +1,33 @@
 {% extends "core/base.html" %}
+{% load navigation icons %}
 
 {% block title %}Welcome | langcen_base{% endblock %}
 
 {% block content %}
+
+  <section>
+    {% icon 'info' class_='h-5 w-5' label='Information' %}
+{% icon 'success' class_='h-5 w-5' label='Success' %}
+{% icon 'warning' class_='h-5 w-5' label='Warning' %}
+{% icon 'error' class_='h-5 w-5' label='Error' %}
+
+{% icon 'home' class_='h-5 w-5' label='Home' %}
+{% icon 'admin' class_='h-5 w-5' label='Admin' %}
+
+{% icon 'login' class_='h-5 w-5' label='Login' %}
+{% icon 'logout' class_='h-5 w-5' label='Logout' %}
+
+{% icon 'dashboard' class_='h-5 w-5' label='Dashboard' %}
+{% icon 'info' class_='h-5 w-5' label='Dashboard' %}
+
+{% icon 'computer' class_='h-5 w-5' label='Computer' %}
+{% icon 'dark_mode' class_='h-5 w-5' label='dark_mode' %}
+{% icon 'light_mode' class_='h-5 w-5' label='light_mode' %}
+
+<br>
+
+  </section>
+
   <!-- Hero section -->
   <section class="relative bg-white">
     <div class="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:flex lg:items-center lg:gap-x-10 lg:px-8">

@@ -1,0 +1,182 @@
+{% load navigation icons %}
+
+{#
+  Navbar (Tailwind v4 + cotton/shadcn classes)
+  - Uses anchors for navigation, styled with shadcn button classes where needed
+  - Uses <c-button> (cotton) for the dark/light icon toggle (real button action)
+#}
+
+<nav x-data="{ open: false }" aria-label="Primary navigation">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <!-- LEFT: logo + desktop nav -->
+    <div class="flex items-center gap-4">
+      {# brand #}
+      {% include "core/partials/logo.html" %}
+
+      {# DESKTOP NAV (≥sm) #}
+      <div class="hidden sm:flex items-center gap-6 ml-6">
+        {# Public: Home #}
+        <a href="{% url 'core:landing' %}"
+           class="inline-flex items-center gap-2 text-sm hover:text-foreground/80 {% active_url 'core:landing' %}"
+           {% aria_current 'core:landing' %}>
+          {% icon 'home' class_='h-5 w-5 align-middle shrink-0' %}
+          <span>Home</span>
+        </a>
+
+        {# Public: About #}
+        <a href="{% url 'core:about' %}"
+           class="inline-flex items-center gap-2 text-sm hover:text-foreground/80 {% active_url 'core:about' startswith='/about/' %}"
+           {% aria_current 'core:about' startswith='/about/' %}>
+          {% icon 'info' class_='h-5 w-5 align-middle shrink-0' %}
+          <span>About</span>
+        </a>
+
+        {% if request.user.is_authenticated %}
+          {# Auth: Dashboard (role homes share active state) #}
+          <a href="{% url 'users:student_home' %}"
+             class="inline-flex items-center gap-2 text-sm hover:text-foreground/80 {% active_url 'users:student_home' 'users:teacher_home' 'users:admin_home' %}"
+             {% aria_current 'users:student_home' 'users:teacher_home' 'users:admin_home' %}>
+            {% icon 'dashboard' class_='h-5 w-5 align-middle shrink-0' %}
+            <span>Dashboard</span>
+          </a>
+
+          {# Role placeholders #}
+          {% if request.user.is_student %}
+            <a href="#" class="inline-flex items-center gap-2 text-sm hover:text-foreground/80">
+              {% icon 'school' class_='h-5 w-5 align-middle shrink-0' %}
+              <span>Courses</span>
+            </a>
+          {% elif request.user.is_teacher %}
+            <a href="#" class="inline-flex items-center gap-2 text-sm hover:text-foreground/80">
+              <span>Availability</span>
+            </a>
+          {% endif %}
+
+          {# Staff-only: Admin #}
+          {% if request.user.is_staff %}
+            <a href="/admin/"
+               class="inline-flex items-center gap-2 text-sm hover:text-foreground/80">
+              {% icon 'admin' class_='h-5 w-5 align-middle shrink-0' %}
+              <span>Admin</span>
+            </a>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+
+    {# RIGHT: desktop actions (≥sm) — put theme icon flush right #}
+    <div class="hidden sm:flex items-center gap-2 ml-auto">
+      {% if request.user.is_authenticated %}
+        <a href="#" class="inline-flex items-center gap-2 text-sm hover:text-foreground/80 px-2 py-1.5 rounded-md">
+          {% icon 'verified_user' class_='h-5 w-5 align-middle shrink-0' %}
+          <span>{{ request.user.get_short_name|default:request.user.email }}</span>
+        </a>
+        <a href="{% url 'users:logout' %}"
+          class="inline-flex items-center gap-2 justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 h-9 px-4 py-2 border bg-background hover:bg-accent hover:text-accent-foreground">
+          {% icon 'logout' class_='h-5 w-5 align-middle shrink-0' %}
+          <span>Logout</span>
+        </a>
+      {% else %}
+        <a href="{% url 'users:login' %}"
+          class="inline-flex items-center gap-2 justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 h-9 px-4 py-2 border bg-background hover:bg-accent hover:text-accent-foreground {% active_url 'users:login' %}"
+          {% aria_current 'users:login' %}>
+          {% icon 'login' class_='h-5 w-5 align-middle shrink-0' %}
+          <span>Login</span>
+        </a>
+      {% endif %}
+
+      {% include "core/partials/theme_toggle.html" with variant="desktop" %}
+    </div>
+
+
+    {# MOBILE toggle #}
+    <button type="button"
+            class="sm:hidden inline-flex items-center rounded-md border bg-background p-2 text-sm shadow-sm hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            @click="open = !open"
+            :aria-expanded="open.toString()"
+            aria-controls="mobile-menu">
+      <span class="sr-only">Toggle navigation</span>
+      {% icon 'menu' class_='h-5 w-5' label='Toggle navigation' %}
+    </button>
+  </div>
+
+  {# MOBILE PANEL (<sm) #}
+  <div id="mobile-menu"
+      class="sm:hidden border-t"
+      x-show="open" x-transition
+      @keydown.escape.window="open = false">
+
+    <a href="{% url 'core:landing' %}"
+      class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground {% active_url 'core:landing' %}"
+      {% aria_current 'core:landing' %}>
+      {% icon 'home' class_='h-5 w-5 align-middle shrink-0' %}
+      <span>Home</span>
+    </a>
+
+    <a href="{% url 'core:about' %}"
+      class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground {% active_url 'core:about' startswith='/about/' %}"
+      {% aria_current 'core:about' startswith='/about/' %}>
+      {% icon 'info' class_='h-5 w-5 align-middle shrink-0' %}
+      <span>About</span>
+    </a>
+
+    {% if request.user.is_authenticated %}
+      <a href="{% url 'users:student_home' %}"
+        class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground {% active_url 'users:student_home' 'users:teacher_home' 'users:admin_home' %}"
+        {% aria_current 'users:student_home' 'users:teacher_home' 'users:admin_home' %}>
+        {% icon 'dashboard' class_='h-5 w-5 align-middle shrink-0' %}
+        <span>Dashboard</span>
+      </a>
+
+      <a href="#"
+        class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground">
+        {% icon 'verified_user' class_='h-5 w-5 align-middle shrink-0' %}
+        <span>{{ request.user.get_short_name|default:request.user.email }}</span>
+      </a>
+
+      {% if request.user.is_student %}
+        <a href="#" class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground">
+          {% icon 'school' class_='h-5 w-5 align-middle shrink-0' %}
+          <span>Courses</span>
+        </a>
+      {% elif request.user.is_teacher %}
+        <a href="#" class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground">
+          <span>Availability</span>
+        </a>
+      {% endif %}
+
+      {% if request.user.is_staff %}
+        <a href="/admin/"
+          class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground">
+          {% icon 'admin' class_='h-5 w-5 align-middle shrink-0' %}
+          <span>Admin</span>
+        </a>
+      {% endif %}
+
+      {# ⬇️ Theme BEFORE Logout #}
+      <div class="py-1">
+        {% include "core/partials/theme_toggle.html" with variant="mobile" %}
+      </div>
+
+      <a href="{% url 'users:logout' %}"
+        class="mt-1 flex w-full items-center gap-2 justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 h-9 px-4 py-2 border bg-background hover:bg-accent hover:text-accent-foreground">
+        {% icon 'logout' class_='h-5 w-5 align-middle shrink-0' %}
+        <span>Logout</span>
+      </a>
+
+    {% else %}
+
+      {# ⬇️ Theme BEFORE Login (when logged out) #}
+      <div class="px-3 py-2">
+        {% include "core/partials/theme_toggle.html" with variant="mobile" %}
+      </div>
+
+      <a href="{% url 'users:login' %}"
+        class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground {% active_url 'users:login' %}"
+        {% aria_current 'users:login' %}>
+        {% icon 'login' class_='h-5 w-5 align-middle shrink-0' %}
+        <span>Login</span>
+      </a>
+    {% endif %}
+  </div>
+</nav>
