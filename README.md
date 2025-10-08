@@ -13,6 +13,7 @@ This repository provides a clean, modular starting point for building Django app
 - Authentication (login, logout, register, password reset)
 - Tailwind CSS v4 integration (via npm)
 - ShadCN‑Django components (rendered by **django‑cotton**)
+- Admin UI (Unfold) + Import/Export (**django-unfold** , **django-import-export**)
 - Django Browser Reload for live development refresh
 - Pre‑commit hooks (Black + Ruff)
 - Seed script for creating users from CSV files
