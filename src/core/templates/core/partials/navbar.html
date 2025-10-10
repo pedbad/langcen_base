@@ -6,7 +6,7 @@
   - Uses <c-button> (cotton) for the dark/light icon toggle (real button action)
 #}
 
-<nav x-data="{ open: false }" aria-label="Primary navigation">
+<nav x-data="{ open: false }" aria-label="Primary navigation" class="text-foreground">
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
     <!-- LEFT: logo + desktop nav -->
     <div class="flex items-center gap-4">
@@ -72,13 +72,13 @@
           <span>{{ request.user.get_short_name|default:request.user.email }}</span>
         </a>
         <a href="{% url 'users:logout' %}"
-          class="inline-flex items-center gap-2 justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 h-9 px-4 py-2 border bg-background hover:bg-accent hover:text-accent-foreground">
+          class="inline-flex items-center gap-2 justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 h-9 px-4 py-2 border border-border bg-background hover:bg-accent hover:text-accent-foreground">
           {% icon 'logout' class_='h-5 w-5 align-middle shrink-0' %}
           <span>Logout</span>
         </a>
       {% else %}
         <a href="{% url 'users:login' %}"
-          class="inline-flex items-center gap-2 justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 h-9 px-4 py-2 border bg-background hover:bg-accent hover:text-accent-foreground {% active_url 'users:login' %}"
+          class="inline-flex items-center gap-2 justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 h-9 px-4 py-2 border border-border bg-background hover:bg-accent hover:text-accent-foreground {% active_url 'users:login' %}"
           {% aria_current 'users:login' %}>
           {% icon 'login' class_='h-5 w-5 align-middle shrink-0' %}
           <span>Login</span>
@@ -91,7 +91,7 @@
 
     {# MOBILE toggle #}
     <button type="button"
-            class="sm:hidden inline-flex items-center rounded-md border bg-background p-2 text-sm shadow-sm hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            class="sm:hidden inline-flex items-center rounded-md border border-border bg-background p-2 text-sm shadow-sm hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             @click="open = !open"
             :aria-expanded="open.toString()"
             aria-controls="mobile-menu">
@@ -102,9 +102,8 @@
 
   {# MOBILE PANEL (<sm) #}
   <div id="mobile-menu"
-      class="sm:hidden border-t"
-      x-show="open" x-transition
-      @keydown.escape.window="open = false">
+     class="sm:hidden border-t border-border bg-background"
+     x-show="open" x-transition @keydown.escape.window="open = false">
 
     <a href="{% url 'core:landing' %}"
       class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground {% active_url 'core:landing' %}"
@@ -159,7 +158,7 @@
       </div>
 
       <a href="{% url 'users:logout' %}"
-        class="mt-1 flex w-full items-center gap-2 justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 h-9 px-4 py-2 border bg-background hover:bg-accent hover:text-accent-foreground">
+        class="mt-1 flex w-full items-center gap-2 justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 h-9 px-4 py-2 border border-border bg-background hover:bg-accent hover:text-accent-foreground">
         {% icon 'logout' class_='h-5 w-5 align-middle shrink-0' %}
         <span>Logout</span>
       </a>
