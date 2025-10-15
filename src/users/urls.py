@@ -8,7 +8,7 @@ app_name = "users"
 urlpatterns = [
     # auth
     path("login/", views.EmailLoginView.as_view(), name="login"),
-    path("logout/", views.logout_then_login, name="logout"),
+    path("logout/", views.EmailLogoutView.as_view(), name="logout"),
     path("register/", views.RegisterView.as_view(), name="register"),
     # dashboards / placeholders (so redirects resolve without other apps)
     path("student/", views.student_home, name="student_home"),

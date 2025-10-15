@@ -1,4 +1,4 @@
-{# users/templates/registration/login.html #}
+{# users/templates/users/registration/l/login.html #}
 {# NOTE:
    We use <c-card> + <c-slot> (not <c-card-title>/<c-card-header> tags).
    That avoids maintaining alias templates like cotton/card_title/index.html.
@@ -14,6 +14,7 @@
 
 {% extends "core/base.html" %}
 {% load cotton form_extras %}
+{% load navigation icons %}
 
 {% block content %}
   <div class="min-h-[calc(100vh-8rem)] flex items-start justify-center pt-24">
@@ -39,7 +40,11 @@
           {% endif %}
 
           <div class="pt-4">
-            <c-button variant="default" size="lg" class="w-full">Log in</c-button>
+            <c-button variant="default" size="lg"
+              class="w-full font-medium flex group items-center justify-center gap-2 transition-all">
+              Log in
+              {% icon 'arrow_right' class_='h-5 w-5 relative right-0 transition-all group-hover:-right-1' %}
+            </c-button>
           </div>
         </form>
       {% endc %}

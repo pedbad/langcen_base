@@ -221,9 +221,7 @@ USERS_ROLE_REDIRECTS = {
     "admin": "users:admin_home",  # Django admin login still works at /admin/
 }
 
-# src/config/settings.py
-LOGOUT_REDIRECT_URL = "users:login"
-
+LOGOUT_REDIRECT_URL = None
 
 # --- django-import-export ----------------------------------------------------
 IMPORT_EXPORT_USE_TRANSACTIONS = True

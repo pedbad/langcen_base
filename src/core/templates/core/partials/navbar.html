@@ -71,11 +71,14 @@
           {% icon 'verified_user' class_='h-5 w-5 align-middle shrink-0' %}
           <span>{{ request.user.get_short_name|default:request.user.email }}</span>
         </a>
-        <a href="{% url 'users:logout' %}"
-          class="inline-flex items-center gap-2 justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 h-9 px-4 py-2 border border-border bg-background hover:bg-accent hover:text-accent-foreground">
-          {% icon 'logout' class_='h-5 w-5 align-middle shrink-0' %}
-          <span>Logout</span>
-        </a>
+        <form method="post" action="{% url 'users:logout' %}">
+          {% csrf_token %}
+          <button type="submit"
+            class="inline-flex items-center gap-2 justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 h-9 px-4 py-2 border border-border bg-background hover:bg-accent hover:text-accent-foreground">
+            {% icon 'logout' class_='h-5 w-5 align-middle shrink-0' %}
+            <span>Logout</span>
+          </button>
+        </form>
       {% else %}
         <a href="{% url 'users:login' %}"
           class="inline-flex items-center gap-2 justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 h-9 px-4 py-2 border border-border bg-background hover:bg-accent hover:text-accent-foreground {% active_url 'users:login' %}"
@@ -157,11 +160,16 @@
         {% include "core/partials/theme_toggle.html" with variant="mobile" %}
       </div>
 
-      <a href="{% url 'users:logout' %}"
-        class="mt-1 flex w-full items-center gap-2 justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 h-9 px-4 py-2 border border-border bg-background hover:bg-accent hover:text-accent-foreground">
-        {% icon 'logout' class_='h-5 w-5 align-middle shrink-0' %}
-        <span>Logout</span>
-      </a>
+      <form method="post" action="{% url 'users:logout' %}" class="mt-1 px-3 py-2">
+        {% csrf_token %}
+        <button type="submit"
+          class="flex w-full items-center gap-2 justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 h-9 px-4 py-2 border border-border bg-background hover:bg-accent hover:text-accent-foreground">
+          {% icon 'logout' class_='h-5 w-5 align-middle shrink-0' %}
+          <span>Logout</span>
+        </button>
+      </form>
+
+
 
     {% else %}
 

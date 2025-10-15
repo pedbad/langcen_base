@@ -1,7 +1,7 @@
 # src/users/views.py
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import get_user_model, login, logout
+from django.contrib.auth import get_user_model, login
 from django.contrib.auth.views import (
     LoginView,
     LogoutView,
@@ -37,13 +37,8 @@ class EmailLoginView(LoginView):
 
 
 class EmailLogoutView(LogoutView):
-    next_page = reverse_lazy("users:login")
-
-
-def logout_then_login(request):
-    """Log out regardless, then go to login (works for anonymous users too)."""
-    logout(request)
-    return redirect("users:login")
+    next_page = None  # render a template instead of redirecting
+    template_name = "users/registration/logged_out.html"
 
 
 # --------------------------
