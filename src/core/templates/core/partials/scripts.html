@@ -23,7 +23,7 @@
 {% endif %}
 
 <!-- ================================================ -->
-<!-- ✅ University of Cambridge | CIVIC Cookie Banner -->
+<!-- University of Cambridge | CIVIC Cookie Banner -->
 <!-- ================================================ -->
 <!-- CIVIC cookie control banner starts -->
 <script src="https://cc.cdn.civiccomputing.com/9/cookieControl-9.x.min.js"></script>
@@ -32,6 +32,9 @@
     var config = {
       apiKey: '9c3bd2a68162ba67b19f07e540747675bd136e66',
       product: 'community',
+      // Do NOT block these — Django needs them
+      necessaryCookies: ['csrftoken', 'sessionid'],
+
       optionalCookies: [
         {
           name: 'analytics',

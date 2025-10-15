@@ -101,11 +101,16 @@ TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [
-            BASE_DIR / "core" / "templates",  # app-level templates
-            BASE_DIR.parent / "templates",  # (project-root-level: shadcn/cotton lives here)
+            BASE_DIR / "core" / "templates",  # app-level
+            BASE_DIR.parent / "templates",  # project root (your cotton/ folder lives here)
         ],
-        "APP_DIRS": True,
+        "APP_DIRS": False,  # <- use loaders explicitly
         "OPTIONS": {
+            "loaders": [
+                "django_cotton.cotton_loader.Loader",  # <- must be first
+                "django.template.loaders.filesystem.Loader",
+                "django.template.loaders.app_directories.Loader",
+            ],
             "context_processors": [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
@@ -114,6 +119,18 @@ TEMPLATES = [
         },
     },
 ]
+
+
+# Only in production
+# Wrap loaders with Django’s cached loader in prod to speed up template lookups:
+# "loaders": [(
+#     "django.template.loaders.cached.Loader",
+#     [
+#         "django_cotton.cotton_loader.Loader",
+#         "django.template.loaders.filesystem.Loader",
+#         "django.template.loaders.app_directories.Loader",
+#     ],
+# )],
 
 WSGI_APPLICATION = "config.wsgi.application"
 
