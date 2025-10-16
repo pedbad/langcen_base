@@ -13,20 +13,27 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# load .env from repo root
+load_dotenv(BASE_DIR.parent / ".env")
+
+ENV = os.getenv("ENV", "dev")
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-_i7wfo-j!cv)8%2&n-l@5e=4rt5&&2&2&9l9#n=zch9%840@po"
+SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-default")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost").split(",")
 
 
 # Application definition
