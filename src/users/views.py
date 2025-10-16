@@ -1,7 +1,13 @@
-# src/users/views.py
+# users/views.py
+
+# Standard library imports
+# (none in this case)
+
+# Django imports
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model, login
+from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.views import (
     LoginView,
     LogoutView,
@@ -12,17 +18,19 @@ from django.contrib.auth.views import (
 )
 from django.shortcuts import redirect, render
 from django.urls import reverse, reverse_lazy
-from django.views import View
+from django.views.generic import CreateView
 
+# Local imports
 from .forms import RegisterForm
+from .mixins import AdminRequiredMixin
 
 User = get_user_model()
 
 
-def _redirect_for_role(user: User):
+def _redirect_for_role(user: AbstractBaseUser) -> str:
     """Map user.role → URL name (configured in settings.USERS_ROLE_REDIRECTS)."""
     mapping = getattr(settings, "USERS_ROLE_REDIRECTS", {})
-    url_name = mapping.get(user.role, "users:student_home")
+    url_name = mapping.get(getattr(user, "role", None), "users:student_home")
     return reverse(url_name)
 
 
@@ -42,29 +50,22 @@ class EmailLogoutView(LogoutView):
 
 
 # --------------------------
-# Auth: register (optional)
+# Auth: register
 # --------------------------
-class RegisterView(View):
-    """
-    Simple registration. Hide the public link in templates if you don't want
-    self-registration (admins can still create users in the admin).
-    """
-
+class RegisterView(AdminRequiredMixin, CreateView):
     template_name = "users/registration/register.html"
+    model = User
+    form_class = RegisterForm
+    success_url = reverse_lazy("users:student_home")  # fallback; we’ll override redirect below
 
-    def get(self, request):
-        return render(request, self.template_name, {"form": RegisterForm()})
-
-    def post(self, request):
-        form = RegisterForm(request.POST)
-        if form.is_valid():
-            user = form.save(commit=False)
-            user.role = form.cleaned_data.get("role", User.Roles.STUDENT)
-            user.save()
-            login(request, user)
-            messages.success(request, "Welcome! Your account has been created.")
-            return redirect(_redirect_for_role(user))
-        return render(request, self.template_name, {"form": form})
+    def form_valid(self, form):
+        user = form.save(commit=False)
+        # Default to student unless admin selected a different role in the form
+        user.role = form.cleaned_data.get("role", User.Roles.STUDENT)
+        user.save()
+        login(self.request, user)
+        messages.success(self.request, "Welcome! Your account has been created.")
+        return redirect(_redirect_for_role(user))
 
 
 # --------------------------

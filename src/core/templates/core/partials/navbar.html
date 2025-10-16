@@ -1,4 +1,4 @@
-{% load navigation icons %}
+{% load navigation icons user_roles %}
 
 {#
   Navbar (Tailwind v4 + cotton/shadcn classes)
@@ -15,49 +15,59 @@
 
       {# DESKTOP NAV (≥sm) #}
       <div class="hidden sm:flex items-center gap-6 ml-6">
-        {# Public: Home #}
+        <!-- Public: Home -->
         <a href="{% url 'core:landing' %}"
-           class="inline-flex items-center gap-2 text-sm hover:text-foreground/80 {% active_url 'core:landing' %}"
-           {% aria_current 'core:landing' %}>
+          class="inline-flex items-center gap-2 text-sm hover:text-foreground/80 {% active_url 'core:landing' %}"
+          {% aria_current 'core:landing' %}>
           {% icon 'home' class_='h-5 w-5 align-middle shrink-0' %}
           <span>Home</span>
         </a>
 
-        {# Public: About #}
+        <!-- Public: About -->
         <a href="{% url 'core:about' %}"
-           class="inline-flex items-center gap-2 text-sm hover:text-foreground/80 {% active_url 'core:about' startswith='/about/' %}"
-           {% aria_current 'core:about' startswith='/about/' %}>
+          class="inline-flex items-center gap-2 text-sm hover:text-foreground/80 {% active_url 'core:about' startswith='/about/' %}"
+          {% aria_current 'core:about' startswith='/about/' %}>
           {% icon 'info' class_='h-5 w-5 align-middle shrink-0' %}
           <span>About</span>
         </a>
 
         {% if request.user.is_authenticated %}
-          {# Auth: Dashboard (role homes share active state) #}
+          <!-- Dashboard -->
           <a href="{% url 'users:student_home' %}"
-             class="inline-flex items-center gap-2 text-sm hover:text-foreground/80 {% active_url 'users:student_home' 'users:teacher_home' 'users:admin_home' %}"
-             {% aria_current 'users:student_home' 'users:teacher_home' 'users:admin_home' %}>
+            class="inline-flex items-center gap-2 text-sm hover:text-foreground/80 {% active_url 'users:student_home' 'users:teacher_home' 'users:admin_home' %}"
+            {% aria_current 'users:student_home' 'users:teacher_home' 'users:admin_home' %}>
             {% icon 'dashboard' class_='h-5 w-5 align-middle shrink-0' %}
             <span>Dashboard</span>
           </a>
 
-          {# Role placeholders #}
-          {% if request.user.is_student %}
+          <!-- Staff-only: Admin (comes BEFORE Register) -->
+          {% if request.user.is_staff %}
+            <a href="/admin/"
+              class="inline-flex items-center gap-2 text-sm hover:text-foreground/80">
+              {% icon 'admin' class_='h-5 w-5 align-middle shrink-0' %}
+              <span>Admin</span>
+            </a>
+          {% endif %}
+
+          <!-- Admin role only: Register -->
+          {% if request.user|is_admin %}
+            <a href="{% url 'users:register' %}"
+              class="inline-flex items-center gap-2 text-sm hover:text-foreground/80 {% active_url 'users:register' %}"
+              {% aria_current 'users:register' %}>
+              {% icon 'user_plus' class_='h-5 w-5 align-middle shrink-0' %}
+              <span>Register</span>
+            </a>
+          {% endif %}
+
+          <!-- Role placeholders (unchanged) -->
+          {% if request.user|is_student %}
             <a href="#" class="inline-flex items-center gap-2 text-sm hover:text-foreground/80">
               {% icon 'school' class_='h-5 w-5 align-middle shrink-0' %}
               <span>Courses</span>
             </a>
-          {% elif request.user.is_teacher %}
+          {% elif request.user|is_teacher %}
             <a href="#" class="inline-flex items-center gap-2 text-sm hover:text-foreground/80">
               <span>Availability</span>
-            </a>
-          {% endif %}
-
-          {# Staff-only: Admin #}
-          {% if request.user.is_staff %}
-            <a href="/admin/"
-               class="inline-flex items-center gap-2 text-sm hover:text-foreground/80">
-              {% icon 'admin' class_='h-5 w-5 align-middle shrink-0' %}
-              <span>Admin</span>
             </a>
           {% endif %}
         {% endif %}
@@ -91,7 +101,6 @@
       {% include "core/partials/theme_toggle.html" with variant="desktop" %}
     </div>
 
-
     {# MOBILE toggle #}
     <button type="button"
             class="sm:hidden inline-flex items-center rounded-md border border-border bg-background p-2 text-sm shadow-sm hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -105,9 +114,10 @@
 
   {# MOBILE PANEL (<sm) #}
   <div id="mobile-menu"
-     class="sm:hidden border-t border-border bg-background"
-     x-show="open" x-transition @keydown.escape.window="open = false">
+    class="sm:hidden border-t border-border bg-background"
+    x-show="open" x-transition @keydown.escape.window="open = false">
 
+    {# --- Public links: always visible --- #}
     <a href="{% url 'core:landing' %}"
       class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground {% active_url 'core:landing' %}"
       {% aria_current 'core:landing' %}>
@@ -122,7 +132,10 @@
       <span>About</span>
     </a>
 
+    {# --- Authenticated section --- #}
     {% if request.user.is_authenticated %}
+
+      {# Dashboard #}
       <a href="{% url 'users:student_home' %}"
         class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground {% active_url 'users:student_home' 'users:teacher_home' 'users:admin_home' %}"
         {% aria_current 'users:student_home' 'users:teacher_home' 'users:admin_home' %}>
@@ -130,23 +143,7 @@
         <span>Dashboard</span>
       </a>
 
-      <a href="#"
-        class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground">
-        {% icon 'verified_user' class_='h-5 w-5 align-middle shrink-0' %}
-        <span>{{ request.user.get_short_name|default:request.user.email }}</span>
-      </a>
-
-      {% if request.user.is_student %}
-        <a href="#" class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground">
-          {% icon 'school' class_='h-5 w-5 align-middle shrink-0' %}
-          <span>Courses</span>
-        </a>
-      {% elif request.user.is_teacher %}
-        <a href="#" class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground">
-          <span>Availability</span>
-        </a>
-      {% endif %}
-
+      {# Admin site (staff) — comes BEFORE Register #}
       {% if request.user.is_staff %}
         <a href="/admin/"
           class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground">
@@ -155,11 +152,41 @@
         </a>
       {% endif %}
 
-      {# ⬇️ Theme BEFORE Logout #}
+      {# Register (admin role / superuser) — after Admin #}
+      {% if request.user|is_admin %}
+        <a href="{% url 'users:register' %}"
+          class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground {% active_url 'users:register' %}"
+          {% aria_current 'users:register' %}>
+          {% icon 'user_plus' class_='h-5 w-5 align-middle shrink-0' %}
+          <span>Register</span>
+        </a>
+      {% endif %}
+
+      {# Username (before Theme) #}
+      <a href="#"
+        class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground">
+        {% icon 'verified_user' class_='h-5 w-5 align-middle shrink-0' %}
+        <span>{{ request.user.get_short_name|default:request.user.email }}</span>
+      </a>
+
+      {# Optional: role placeholders (keep AFTER Admin/Register if you still want them) #}
+      {% if request.user|is_student %}
+        <a href="#" class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground">
+          {% icon 'school' class_='h-5 w-5 align-middle shrink-0' %}
+          <span>Courses</span>
+        </a>
+      {% elif request.user|is_teacher %}
+        <a href="#" class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground">
+          <span>Availability</span>
+        </a>
+      {% endif %}
+
+      {# Theme BEFORE Logout #}
       <div class="py-1">
         {% include "core/partials/theme_toggle.html" with variant="mobile" %}
       </div>
 
+      {# Logout last #}
       <form method="post" action="{% url 'users:logout' %}" class="mt-1 px-3 py-2">
         {% csrf_token %}
         <button type="submit"
@@ -169,11 +196,9 @@
         </button>
       </form>
 
-
-
     {% else %}
 
-      {# ⬇️ Theme BEFORE Login (when logged out) #}
+      {# Theme BEFORE Login (logged out) #}
       <div class="px-3 py-2">
         {% include "core/partials/theme_toggle.html" with variant="mobile" %}
       </div>
@@ -184,6 +209,8 @@
         {% icon 'login' class_='h-5 w-5 align-middle shrink-0' %}
         <span>Login</span>
       </a>
+
     {% endif %}
   </div>
+
 </nav>
