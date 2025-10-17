@@ -400,7 +400,7 @@ pytest -q
 
 ---
 
-## 🪄 Badges (optional)
+## 🪄 Badges
 
 ![Python](https://img.shields.io/badge/python-3.13-blue)
 ![Django](https://img.shields.io/badge/django-5.2-green)
@@ -408,3 +408,221 @@ pytest -q
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 
 ---
+
+---
+## 🔐 Auth & Email — Dev Quickstart
+
+**Logout (Django 5):**
+Logout is **POST-only**. Our view renders a logged-out page (no redirect).
+```html
+<form action="{% url 'users:logout' %}" method="post">{% csrf_token %}
+  <button type="submit">Sign out</button>
+</form>
+```
+
+**Password reset (dev):**
+We use a file-based backend; emails are written to `tmp_emails/`.
+
+```env
+# .env (dev)
+EMAIL_BACKEND=django.core.mail.backends.filebased.EmailBackend
+EMAIL_FILE_PATH=/absolute/path/to/langcen_base/tmp_emails
+DEFAULT_FROM_EMAIL=no-reply@langcen_base.com
+SITE_DOMAIN=127.0.0.1:8000
+SITE_USE_HTTPS=False
+```
+
+- Visit `/users/password-reset/`
+- Open the newest file in `tmp_emails/`
+- Click the `/users/reset/<uid>/<token>/` link to set a new password
+
+**Invite-on-create (signals):**
+Creating a non-staff, non-superuser `User` triggers an **invite email** (via password-reset flow) **after** DB commit:
+- Handler: `users/signals.py` (uses `transaction.on_commit`)
+- Sender: `users/utils.send_set_password()` (uses our email templates)
+- Templates (namespaced):
+  - `users/registration/password_reset_subject.txt`
+  - `users/registration/password_reset_email.txt`
+  - `users/registration/password_reset_email.html`
+
+**Auth URLs (namespaced):**
+- Login: `users:login` → `/users/login/`
+- Logout (POST): `users:logout` → `/users/logout/`
+- Password reset: `users:password_reset` → `/users/password-reset/`
+- Confirm: `users:password_reset_confirm` → `/users/reset/<uid>/<token>/`
+- Complete: `users:password_reset_complete` → `/users/reset/done/`
+
+**Custom logic kept modular:**
+- Views: `users/views.py` (email-only login, role redirects)
+- Constants (template map): `users/constants.py` (`PWD_RESET_TPLS`)
+- Utils: `users/utils.py` (`send_set_password`, `get_domain_and_scheme`)
+- Signals: `users/signals.py` (invite on create; loaded in `users/apps.py`)
+- Mixins: `users/mixins.py` (`AdminRequiredMixin`)
+
+
+## 🧪 Running Tests
+
+We use `pytest` + `pytest-django`.
+
+```bash
+# all tests
+pytest -q
+
+# focused
+pytest -q src/users/tests/test_password_reset.py::test_password_reset_sends_email
+pytest -q src/users/tests/test_register.py
+```
+**Suite status:** 17 tests passing.
+Covers:
+- Logout renders a page (POST-only)
+- Password reset sends email (locmem/file backends)
+- Register requires staff/admin; one invite email sent via signal
+- Role-based redirects after login
+
+
+## 🚀 Production Notes
+
+Switch to SMTP in `.env` and enable HTTPS links in emails:
+
+```env
+ENV=prod
+DEBUG=False
+SITE_DOMAIN=langcen.cam.ac.uk
+SITE_USE_HTTPS=True
+
+EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+EMAIL_HOST=smtp.sendgrid.net
+EMAIL_PORT=587
+EMAIL_HOST_USER=apikey
+EMAIL_HOST_PASSWORD=***redacted***
+EMAIL_USE_TLS=True
+DEFAULT_FROM_EMAIL=no-reply@langcen.cam.ac.uk
+
+ALLOWED_HOSTS=langcen.cam.ac.uk,www.langcen.cam.ac.uk
+```
+
+Optional security/timeouts:
+```python
+# settings.py
+from datetime import timedelta
+PASSWORD_RESET_TIMEOUT = int(timedelta(hours=24).total_seconds())
+```
+
+
+## 🧭 UI Refresh Checklist (snapshot)
+
+> Source: `ui_refresh_checklist.md`. Quick snapshot for convenience.
+>
+> ---
+# 🧭 LangCen UI Refresh — Quick Checklist
+
+## ✅ DONE (Phase 1)
+
+### 🔹 Navigation
+- [x] Responsive navbar (desktop + mobile)
+- [x] Active link highlighting via templatetag
+- [x] Modular partials (`logo`, `theme_toggle`, `navbar`, `header`)
+- [x] Proper order + alignment of theme toggle and icons
+
+### 🔹 Branding
+- [x] Logo swap (light/dark: `logo-cap.svg`, `logo-cap-blue.svg`)
+- [x] Accessible dark/light toggling with Tailwind classes
+
+### 🔹 Theming
+- [x] Alpine store + `window.deferLoadingAlpine()` fix
+- [x] Theme persistence via `localStorage`
+- [x] Tailwind v4 tokens (`bg-background`, `text-foreground`, etc.)
+
+### 🔹 Footer
+- [x] University-style layout with Cambridge logo
+- [x] Fully theme-aware (light/dark)
+- [x] Responsive stacked/side-by-side design
+- [x] Stable logo sizing using Tailwind height utilities
+
+### 🔹 Cookie Banner
+- [x] CIVIC integrated (`core/partials/scripts.html`)
+- [x] CSRF-safe with `csrftoken` + `sessionid`
+- [x] Stub ready for Analytics
+
+### 🔹 Messages UI
+- [x] Themed dismissible alerts
+- [x] Accessible focus/hover states
+- [x] Clean handling of empty or error states
+
+### 🔹 Forms + Auth
+- [x] Reusable field + error partials
+- [x] Custom `add_attrs` filter (`form_extras.py`)
+- [x] Login + Password Reset flow fully styled via Cotton
+- [x] Registration link removed (admin-only policy)
+
+### 🔹 Template System
+- [x] Using `django-cotton` loader stack (Option B)
+- [x] Loaders ordered: Cotton → filesystem → app_directories
+- [x] Template dirs configured for `core/templates` + shared `/templates`
+
+---
+
+## 🚧 TODO (Phase 2)
+
+### A. Auth polish
+- [ ] Add `logged_out.html` (optional logout confirmation page)
+- [ ] Verify SMTP for password reset emails
+- [ ] Restrict `/register` route with `@staff_member_required`
+
+### B. Footer finishing
+- [ ] Replace placeholder links (T&C, Accessibility, Support)
+- [ ] Finalize logo sizes (Cambridge + eLearning)
+
+### C. Base layout & meta
+- [ ] Add favicons + theme-color meta tags
+- [ ] Add Open Graph / social meta
+- [ ] Check header–main–footer spacing on mobile
+
+### D. Mobile nav polish
+- [ ] Add `x-transition` slide/fade animations
+- [ ] (Optional) Persist menu open state in Alpine store
+
+### E. Token QA
+- [ ] Verify contrast + hover/focus states on About / Landing
+
+### F. Error pages
+- [ ] Create themed `core/404.html` + `core/500.html`
+
+### G. Cookie banner analytics
+- [ ] Implement `onAccept` / `onRevoke` hooks for GA or Matomo
+
+---
+
+## 🧪 Tests (Planned)
+Add under `src/users/tests/`:
+
+### `test_auth.py`
+- [ ] Role-based redirect
+- [ ] No "Create account" link on login
+- [ ] Wrong password → error message
+- [ ] Logout → redirects to login
+
+### `test_password_reset.py`
+- [ ] Form renders and sends email
+- [ ] Complete flow with token (optional)
+
+---
+
+## 🧩 Tech Stack Summary
+- Django + Tailwind v4 + Cotton (ShadCN-style templates)
+- Alpine.js 3 store for theme & mobile nav
+- CIVIC cookie banner integrated
+- Theming via Tailwind design tokens
+- Auth flows styled with `<c-card>` / `<c-button>`
+
+> ---
+
+
+## 🛠 Admin helper (optional)
+
+Send an invite (set-password link) from shell:
+
+```python
+from users.utils import send_set_password
+send_set_password("user@example.com", domain="langcen.cam.ac.uk", use_https=True)
+```

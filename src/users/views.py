@@ -1,12 +1,9 @@
 # users/views.py
 
-# Standard library imports
-# (none in this case)
-
 # Django imports
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import get_user_model, login
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.views import (
     LoginView,
@@ -16,13 +13,16 @@ from django.contrib.auth.views import (
     PasswordResetDoneView,
     PasswordResetView,
 )
+from django.db import transaction
 from django.shortcuts import redirect, render
 from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView
 
 # Local imports
+from .constants import PWD_RESET_TPLS  # ← centralised template names
 from .forms import RegisterForm
 from .mixins import AdminRequiredMixin
+from .utils import get_domain_and_scheme
 
 User = get_user_model()
 
@@ -45,7 +45,8 @@ class EmailLoginView(LoginView):
 
 
 class EmailLogoutView(LogoutView):
-    next_page = None  # render a template instead of redirecting
+    # render a page instead of redirecting
+    next_page = None
     template_name = "users/registration/logged_out.html"
 
 
@@ -56,39 +57,55 @@ class RegisterView(AdminRequiredMixin, CreateView):
     template_name = "users/registration/register.html"
     model = User
     form_class = RegisterForm
-    success_url = reverse_lazy("users:student_home")  # fallback; we’ll override redirect below
+    success_url = reverse_lazy("users:student_home")  # fallback
 
+    @transaction.atomic
     def form_valid(self, form):
         user = form.save(commit=False)
-        # Default to student unless admin selected a different role in the form
         user.role = form.cleaned_data.get("role", User.Roles.STUDENT)
+
+        # Ensure first-time set-password flow is required
+        user.set_unusable_password()
         user.save()
-        login(self.request, user)
-        messages.success(self.request, "Welcome! Your account has been created.")
+
+        # ✅ derive domain + scheme from the current request (or fallback)
+        domain, use_https = get_domain_and_scheme(self.request)
+
+        # Note:
+        # The password-set ("invite") email is NOT sent here directly.
+        # A post_save signal in users/signals.py automatically sends the invite
+        # whenever a new non-staff, non-superuser User is created.
+        # This avoids duplicate emails and keeps all invite logic in one place.
+        messages.success(
+            self.request,
+            f"User {user.email} created. An invite email will be sent automatically.",
+        )
+
         return redirect(_redirect_for_role(user))
 
 
 # --------------------------
-# Password reset flow
+# Password reset flow (centralised via PWD_RESET_TPLS)
 # --------------------------
 class PasswordResetStartView(PasswordResetView):
-    template_name = "users/registration/password_reset_form.html"
-    email_template_name = "users/registration/password_reset_email.txt"
-    subject_template_name = "users/registration/password_reset_subject.txt"
+    template_name = PWD_RESET_TPLS["form"]
+    email_template_name = PWD_RESET_TPLS["email_txt"]
+    subject_template_name = PWD_RESET_TPLS["subject"]
+    html_email_template_name = PWD_RESET_TPLS.get("email_html")
     success_url = reverse_lazy("users:password_reset_done")
 
 
 class PasswordResetDoneView(PasswordResetDoneView):
-    template_name = "users/registration/password_reset_done.html"
+    template_name = PWD_RESET_TPLS["done"]
 
 
 class PasswordResetConfirmView(PasswordResetConfirmView):
-    template_name = "users/registration/password_reset_confirm.html"
+    template_name = PWD_RESET_TPLS["confirm"]
     success_url = reverse_lazy("users:password_reset_complete")
 
 
 class PasswordResetCompleteView(PasswordResetCompleteView):
-    template_name = "users/registration/password_reset_complete.html"
+    template_name = PWD_RESET_TPLS["complete"]
 
 
 # --------------------------

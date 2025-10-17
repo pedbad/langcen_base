@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 import os
+from datetime import timedelta
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -35,7 +36,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost").split(",")
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -58,8 +58,8 @@ INSTALLED_APPS = [
     "import_export",
     # "rest_framework",
     # Local apps
-    "core",
-    "users",
+    "core.apps.CoreConfig",
+    "users.apps.UsersConfig",
 ]
 
 if DEBUG:
@@ -206,6 +206,13 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 ENV = os.getenv("ENV", "dev")  # simple switch; default to dev
 
+# A fallback domain for emails when no request is available (CLI, Celery, etc.)
+SITE_DOMAIN = os.getenv("SITE_DOMAIN", "")
+
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "no-reply@example.com")
+SERVER_EMAIL = os.getenv("SERVER_EMAIL", DEFAULT_FROM_EMAIL)  # for error emails, optional
+PASSWORD_RESET_TIMEOUT = int(timedelta(hours=24).total_seconds())
+
 if ENV == "dev":
     EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
     # Write to repo-root/tmp_emails
@@ -218,7 +225,12 @@ else:
     EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
     EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
     EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "1") == "1"
-    DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "no-reply@example.com")
+
+
+# if you’re behind a proxy/load balancer
+# If production sits behind a reverse proxy that sets X-Forwarded-Proto, tell Django to trust it:
+# SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+# USE_X_FORWARDED_HOST = True  # if your proxy sets X-Forwarded-Host correctly
 
 
 # --- Users: role-based redirects (override per project) ---------------------

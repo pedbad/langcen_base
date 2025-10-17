@@ -63,15 +63,12 @@ def test_login_with_wrong_password_shows_error(client):
 
 
 @pytest.mark.django_db
-def test_logout_redirects_to_login(client):
+def test_logout_renders_logged_out_page(client):
     """
-    GIVEN an authenticated session (or even anonymous)
-    WHEN we hit /users/logout/
-    THEN we should be redirected to the login page every time
+    GIVEN an anonymous (or authenticated) session
+    WHEN we POST /users/logout/
+    THEN we render the logged_out template (status 200), not a redirect.
     """
-    logout_url = reverse("users:logout")
-    resp = client.get(logout_url, follow=True)
-
-    # We should land on the login view
-    assert resp.redirect_chain
-    assert resp.resolver_match.view_name == "users:login"
+    resp = client.post(reverse("users:logout"))
+    assert resp.status_code == 200
+    assert b"logged out" in resp.content.lower() or b"signed out" in resp.content.lower()
