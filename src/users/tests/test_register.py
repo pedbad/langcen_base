@@ -51,9 +51,9 @@ def test_staff_can_register_user_and_invite_is_sent(client, django_capture_on_co
     with django_capture_on_commit_callbacks(execute=True) as callbacks:
         resp = client.post(url, data=form_data, follow=True)
 
-    # Should redirect to the new user's landing page (student)
+    # We now keep the creator (admin) on their own dashboard
     assert resp.redirect_chain
-    assert resp.resolver_match.view_name == "users:student_home"
+    assert resp.resolver_match.view_name == "users:admin_home"
 
     # New user exists and has an unusable password (invite flow)
     new_user = User.objects.get(email="newstudent@example.com")

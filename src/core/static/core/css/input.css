@@ -151,3 +151,28 @@
     @apply transition-colors duration-300;
   }
 }
+
+/* ==========================================================================
+   Utilities: nav link active color (higher precedence than components)
+   ==========================================================================
+*/
+@layer utilities {
+  /* Base look */
+  .nav-link {
+    @apply inline-flex items-center gap-2 text-sm transition-colors hover:text-foreground/80;
+  }
+
+  /* Active state — match any truthy aria-current OR fallback .is-active */
+  .nav-link[aria-current],
+  .nav-link[aria-current="true"],
+  .nav-link[aria-current="page"],
+  .nav-link.is-active {
+    @apply text-indigo-600 dark:text-indigo-400 font-semibold;
+  }
+
+  /* Icons inherit the active color */
+  .nav-link[aria-current] svg,
+  .nav-link.is-active svg {
+    @apply text-current;
+  }
+}

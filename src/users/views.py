@@ -20,18 +20,43 @@ from django.views.generic import CreateView
 
 # Local imports
 from .constants import PWD_RESET_TPLS  # ← centralised template names
+from .decorators import role_required
 from .forms import RegisterForm
 from .mixins import AdminRequiredMixin
-from .utils import get_domain_and_scheme
 
 User = get_user_model()
 
 
 def _redirect_for_role(user: AbstractBaseUser) -> str:
-    """Map user.role → URL name (configured in settings.USERS_ROLE_REDIRECTS)."""
-    mapping = getattr(settings, "USERS_ROLE_REDIRECTS", {})
-    url_name = mapping.get(getattr(user, "role", None), "users:student_home")
-    return reverse(url_name)
+    """
+    Map user.role → URL name, with sane fallbacks and support for @override_settings.
+    Priority:
+      1) settings.USERS_ROLE_REDIRECTS (if provided in runtime/tests)
+      2) sensible defaults for known roles (admin/teacher/student)
+    """
+    role = getattr(user, "role", None)
+
+    # 1) Honor dynamic settings (override_settings in tests will work here)
+    mapping = getattr(settings, "USERS_ROLE_REDIRECTS", {}) or {}
+    url_name = mapping.get(role)
+    if url_name:
+        return reverse(url_name)
+
+    # 2) Sane defaults if the mapping is missing/incomplete
+    try:
+        # Use your project enum if present
+        teacher_val = getattr(User.Roles, "TEACHER", "teacher")
+        admin_val = getattr(User.Roles, "ADMIN", "admin")
+    except Exception:
+        teacher_val, admin_val = "teacher", "admin"
+
+    if role == admin_val:
+        return reverse("users:admin_home")
+    if role == teacher_val:
+        return reverse("users:teacher_home")
+
+    # default (student or unknown)
+    return reverse("users:student_home")
 
 
 # --------------------------
@@ -64,24 +89,30 @@ class RegisterView(AdminRequiredMixin, CreateView):
         user = form.save(commit=False)
         user.role = form.cleaned_data.get("role", User.Roles.STUDENT)
 
-        # Ensure first-time set-password flow is required
+        # require first-time set password
         user.set_unusable_password()
+
+        # flags first
+        if user.role in (User.Roles.TEACHER, User.Roles.ADMIN):
+            user.is_staff = True
+
+        # ✅ save BEFORE touching many-to-many relations
         user.save()
 
-        # ✅ derive domain + scheme from the current request (or fallback)
-        domain, use_https = get_domain_and_scheme(self.request)
+        # add group only after save
+        if user.role == User.Roles.TEACHER:
+            from django.contrib.auth.models import Group
 
-        # Note:
-        # The password-set ("invite") email is NOT sent here directly.
-        # A post_save signal in users/signals.py automatically sends the invite
-        # whenever a new non-staff, non-superuser User is created.
-        # This avoids duplicate emails and keeps all invite logic in one place.
+            teacher_group, _ = Group.objects.get_or_create(name="Teacher Admin")
+            user.groups.add(teacher_group)
+
         messages.success(
             self.request,
             f"User {user.email} created. An invite email will be sent automatically.",
         )
 
-        return redirect(_redirect_for_role(user))
+        # Redirect the creator (admin/teacher), not the new user
+        return redirect(_redirect_for_role(self.request.user))
 
 
 # --------------------------
@@ -111,13 +142,18 @@ class PasswordResetCompleteView(PasswordResetCompleteView):
 # --------------------------
 # Simple role home placeholders
 # --------------------------
+
+
+@role_required(["student"])
 def student_home(request):
     return render(request, "users/student_home.html")
 
 
+@role_required(["teacher"])
 def teacher_home(request):
     return render(request, "users/teacher_home.html")
 
 
+@role_required(["admin"])
 def admin_home(request):
     return render(request, "users/admin_home.html")

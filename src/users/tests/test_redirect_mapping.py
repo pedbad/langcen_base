@@ -17,12 +17,12 @@ def test_login_uses_settings_driven_role_mapping(client):
     """
     GIVEN we override USERS_ROLE_REDIRECTS to point 'student' to 'users:teacher_home'
     WHEN a student logs in
-    THEN they should be redirected to 'users:teacher_home' (proving mapping is respected)
+    THEN the initial redirect Location should be 'users:teacher_home'
     """
     user = User.objects.create_user(email="maptest@ex.com", password="pass1234", role="student")
     resp = client.post(
-        reverse("users:login"), {"username": user.email, "password": "pass1234"}, follow=True
+        reverse("users:login"), {"username": user.email, "password": "pass1234"}, follow=False
     )
 
-    assert resp.redirect_chain
-    assert resp.resolver_match.view_name == "users:teacher_home"
+    assert resp.status_code == 302
+    assert resp["Location"].endswith(reverse("users:teacher_home"))
