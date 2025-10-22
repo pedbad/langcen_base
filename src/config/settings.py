@@ -213,6 +213,8 @@ DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "no-reply@example.com")
 SERVER_EMAIL = os.getenv("SERVER_EMAIL", DEFAULT_FROM_EMAIL)  # for error emails, optional
 PASSWORD_RESET_TIMEOUT = int(timedelta(hours=24).total_seconds())
 
+TEACHER_ADMIN_FULL_PERMS = True
+
 if ENV == "dev":
     EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
     # Write to repo-root/tmp_emails
