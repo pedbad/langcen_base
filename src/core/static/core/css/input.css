@@ -7,6 +7,7 @@
 @source "./templates/cotton/**/*.html";       /* shadcn-django components */
 @source "./src/**/*.py";                      /* Python files that render templates */
 
+
 /* Tailwind core directives */
 @import "tailwindcss";
 
@@ -150,28 +151,48 @@
    Utilities
    ========================================================================== */
 @layer utilities {
-  /* Desktop nav links */
-  .nav-link { @apply inline-flex items-center gap-2 text-sm transition-colors hover:text-foreground/80; }
+  /* -------------------------------------------
+     Navigation Links
+     ------------------------------------------- */
+  .nav-link {
+    @apply inline-flex items-center gap-2 text-sm transition-colors hover:text-foreground/80;
+  }
 
   .nav-link[aria-current],
   .nav-link[aria-current="true"],
   .nav-link[aria-current="page"],
-  .nav-link.is-active { @apply text-indigo-600 dark:text-indigo-400 font-semibold; }
+  .nav-link.is-active {
+    @apply text-indigo-600 dark:text-indigo-400 font-semibold;
+  }
 
   .nav-link[aria-current] svg,
-  .nav-link.is-active svg { @apply text-current; }
+  .nav-link.is-active svg {
+    @apply text-current;
+  }
 
-  /* Error lists / messages (Django) */
+  /* -------------------------------------------
+     Django Form Feedback
+     ------------------------------------------- */
+  /* Error lists / validation messages */
   .errorlist,
   .form-error,
-  .field-error { @apply mt-1 space-y-1 list-none pl-0 text-sm; }
+  .field-error {
+    @apply mt-1 space-y-1 list-none pl-0 text-sm;
+  }
 
+  /* Bright, accessible red tones for errors */
   .errorlist li,
   .form-error,
-  .field-error { @apply text-red-600 dark:text-red-400; }
+  .field-error {
+    @apply text-red-600 dark:text-red-400;
+  }
 
-  .helptext { @apply mt-1 text-xs text-foreground/70; }
+  /* Helper text below inputs */
+  .helptext {
+    @apply mt-1 text-xs text-foreground/70;
+  }
 }
+
 
 /* ==========================================================================
    Forms: readable borders + focus + errors (light & dark)
@@ -205,6 +226,11 @@
   [aria-invalid="true"] {
     @apply border-red-500 dark:border-red-400;
   }
+
+  /* NEW: keep error styling while the invalid field is focused */
+  [aria-invalid="true"]:focus {
+    @apply ring-red-500 dark:ring-red-400 border-red-500 dark:border-red-400;
+  }
 }
 
 /* ==========================================================================
@@ -224,17 +250,13 @@
   [data-cotton="input"][aria-invalid="true"] {
     @apply border-red-500 dark:border-red-400;
   }
+  /* NEW: keep error styling while focused (cotton inputs) */
+  [data-cotton="input"][aria-invalid="true"]:focus {
+    @apply ring-red-500 dark:ring-red-400 border-red-500 dark:border-red-400;
+  }
+
   /* Stronger, reusable card border */
   .card-solid {
     @apply border-[1.5px] border-border/90 dark:border-white/60 shadow-md; /* Increased opacity for dark mode */
-  }
-}
-
-/* brighten Django error text a bit more */
-@layer utilities {
-  .errorlist li,
-  .form-error,
-  .field-error {
-    @apply text-red-600 dark:text-red-400;
   }
 }

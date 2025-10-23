@@ -1,3 +1,4 @@
+{# users/templates/users/registration/register.html #}
 {% extends "core/base.html" %}
 {% load cotton form_extras %}
 
@@ -14,7 +15,6 @@
         {% csrf_token %}
         {% include "core/forms/non_field_errors.html" with form=form %}
 
-        {# Adjust field names to match your RegisterForm #}
         {% if form.email %}{% include "core/forms/field.html" with field=form.email autocomplete="email" placeholder="Email address" %}{% endif %}
         {% if form.password1 %}{% include "core/forms/field.html" with field=form.password1 type="password" autocomplete="new-password" placeholder="Password" %}{% endif %}
         {% if form.password2 %}{% include "core/forms/field.html" with field=form.password2 type="password" autocomplete="new-password" placeholder="Confirm password" %}{% endif %}
