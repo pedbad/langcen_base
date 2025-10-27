@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from datetime import timedelta
 from pathlib import Path
+from urllib.parse import urlparse
 
 from dotenv import load_dotenv
 
@@ -32,9 +33,16 @@ ENV = os.getenv("ENV", "dev")
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-default")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG", "True").lower() in {"1", "true", "yes", "on"}
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost").split(",")
+ALLOWED_HOSTS = [h.strip() for h in os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")]
+
+
+# Site identity (fork-friendly: env-driven; no hard-coded brand/domain defaults)
+_default_origin = "http://127.0.0.1:8000" if ENV == "dev" else ""
+SITE_ORIGIN = os.getenv("SITE_ORIGIN", _default_origin)
+SITE_NAME = os.getenv("SITE_NAME", "LangCen Base")
+
 
 # Application definition
 
@@ -122,6 +130,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "core.context_processors.site_meta",
             ],
         },
     },
@@ -193,6 +202,14 @@ STATICFILES_DIRS = [
 ]
 STATIC_ROOT = BASE_DIR / "staticfiles"  # for collectstatic in prod
 
+try:
+    if SITE_ORIGIN:
+        _host = urlparse(SITE_ORIGIN).netloc.split(":")[0]
+        if _host and _host not in ALLOWED_HOSTS:
+            ALLOWED_HOSTS.append(_host)
+except Exception:
+    pass
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -203,8 +220,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # --- Email (dev vs prod) ----------------------------------------------------
 # Dev: write emails to files (e.g., for password reset testing)
 # Prod: switch to SMTP via environment variables
-
-ENV = os.getenv("ENV", "dev")  # simple switch; default to dev
 
 # A fallback domain for emails when no request is available (CLI, Celery, etc.)
 SITE_DOMAIN = os.getenv("SITE_DOMAIN", "")
