@@ -1,3 +1,4 @@
+{# users/core/tempolates/core/partials/navbar.html #}
 {% load navigation icons user_roles %}
 
 {#
@@ -16,7 +17,7 @@
       <div class="hidden sm:flex items-center gap-6 ml-6">
         <!-- Public: Home -->
         <a href="{% url 'core:landing' %}"
-           class="nav-link {% active_url 'core:landing' %}"
+           class="nav-link focus-ring rounded-md px-2 py-1.5 {% active_url 'core:landing' %}"
            {% aria_current 'core:landing' %}>
           {% icon 'home' class_='h-5 w-5 align-middle shrink-0' %}
           <span>Home</span>
@@ -24,7 +25,7 @@
 
         <!-- Public: About -->
         <a href="{% url 'core:about' %}"
-           class="nav-link {% active_url 'core:about' startswith='/about/' %}"
+           class="nav-link focus-ring rounded-md px-2 py-1.5 {% active_url 'core:about' startswith='/about/' %}"
            {% aria_current 'core:about' startswith='/about/' %}>
           {% icon 'info' class_='h-5 w-5 align-middle shrink-0' %}
           <span>About</span>
@@ -41,7 +42,7 @@
             {% else %}
               href="{% url 'users:student_home' %}"
             {% endif %}
-            class="nav-link flex w-full rounded-md px-3 py-2 {% active_url 'users:student_home' 'users:teacher_home' 'users:admin_home' %}"
+            class="nav-link focus-ring flex w-full rounded-md px-3 py-2 {% active_url 'users:student_home' 'users:teacher_home' 'users:admin_home' %}"
             {{ current_attr }}>
             {% icon 'dashboard' class_='h-5 w-5 align-middle shrink-0' %}
             <span>Dashboard</span>
@@ -51,7 +52,7 @@
           <!-- Staff-only: Admin -->
           {% if request.user.is_staff %}
             <a href="/admin/"
-              class="nav-link {% active_url startswith='/admin/' %}"
+              class="nav-link focus-ring rounded-md px-2 py-1.5 {% active_url startswith='/admin/' %}"
               {% aria_current startswith='/admin/' %}>
               {% icon 'admin' class_='h-5 w-5 align-middle shrink-0' %}
               <span>Admin</span>
@@ -62,7 +63,7 @@
           <!-- Admin-only: Register -->
           {% if request.user|is_admin %}
             <a href="{% url 'users:register' %}"
-              class="nav-link {% active_url 'users:register' startswith='/users/register' %}"
+              class="nav-link focus-ring rounded-md px-2 py-1.5 {% active_url 'users:register' startswith='/users/register' %}"
               {% aria_current 'users:register' startswith='/users/register' %}>
               {% icon 'user_plus' class_='h-5 w-5 align-middle shrink-0' %}
               <span>Register</span>
@@ -88,21 +89,22 @@
     {# RIGHT: desktop actions (≥sm) #}
     <div class="hidden sm:flex items-center gap-2 ml-auto">
       {% if request.user.is_authenticated %}
-        <a href="#" class="inline-flex items-center gap-2 text-sm hover:text-foreground/80 px-2 py-1.5 rounded-md">
+        <a href="#"
+          class="focus-ring inline-flex items-center gap-2 text-sm hover:text-foreground/80 px-2 py-1.5 rounded-md">
           {% icon 'verified_user' class_='h-5 w-5 align-middle shrink-0' %}
           <span>{{ request.user.get_short_name|default:request.user.email }}</span>
         </a>
         <form method="post" action="{% url 'users:logout' %}">
           {% csrf_token %}
           <button type="submit"
-                  class="inline-flex items-center gap-2 justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 h-9 px-4 py-2 border border-border bg-background hover:bg-accent hover:text-accent-foreground">
+                  class="focus-ring inline-flex items-center gap-2 justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors h-9 px-4 py-2 border border-border bg-background hover:bg-accent hover:text-accent-foreground">
             {% icon 'logout' class_='h-5 w-5 align-middle shrink-0' %}
             <span>Logout</span>
           </button>
         </form>
       {% else %}
         <a href="{% url 'users:login' %}"
-           class="inline-flex items-center gap-2 justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 h-9 px-4 py-2 border border-border bg-background hover:bg-accent hover:text-accent-foreground {% active_url 'users:login' %}"
+           class="focus-ring inline-flex items-center gap-2 justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors h-9 px-4 py-2 border border-border bg-background hover:bg-accent hover:text-accent-foreground {% active_url 'users:login' %}"
            {% aria_current 'users:login' %}>
           {% icon 'login' class_='h-5 w-5 align-middle shrink-0' %}
           <span>Login</span>
@@ -114,7 +116,7 @@
 
     {# MOBILE toggle #}
     <button type="button"
-            class="sm:hidden inline-flex items-center rounded-md border border-border bg-background p-2 text-sm shadow-sm hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            class="focus-ring sm:hidden inline-flex items-center rounded-md border border-border bg-background p-2 text-sm shadow-sm hover:bg-accent hover:text-accent-foreground"
             @click="open = !open"
             :aria-expanded="open.toString()"
             aria-controls="mobile-menu">
@@ -126,24 +128,23 @@
   {# MOBILE PANEL (<sm) #}
   <div
     id="mobile-menu"
-    class="sm:hidden border-t border-border bg-background"
+    class="sm:hidden border-t border-border bg-background transition-standard"
     x-cloak
     x-show="open"
-    x-transition:enter="transition ease-out duration-200"
     x-transition:enter-start="opacity-0 -translate-y-2"
     x-transition:enter-end="opacity-100 translate-y-0"
-    x-transition:leave="transition ease-in duration-150"
     x-transition:leave-start="opacity-100 translate-y-0"
     x-transition:leave-end="opacity-0 -translate-y-2"
     @keydown.escape.window="open = false"
     @click.outside="open = false"
     role="menu"
     :aria-hidden="(!open).toString()">
+
     {% with current=request.resolver_match.view_name %}
 
     {# Home #}
     <a href="{% url 'core:landing' %}"
-      class="nav-link flex w-full rounded-md px-3 py-2 hover:bg-accent hover:text-accent-foreground{% if current == 'core:landing' %} text-indigo-600 dark:text-indigo-400 font-semibold{% endif %}"
+      class="nav-link focus-ring flex w-full rounded-md px-3 py-2 hover:bg-accent hover:text-accent-foreground{% if current == 'core:landing' %} text-indigo-600 dark:text-indigo-400 font-semibold{% endif %}"
       {% if current == 'core:landing' %}aria-current="page"{% endif %}
       @click="open = false"
       role="menuitem">
@@ -153,7 +154,7 @@
 
     {# About (treat /about/* as active too) #}
     <a href="{% url 'core:about' %}"
-      class="nav-link flex w-full rounded-md px-3 py-2 hover:bg-accent hover:text-accent-foreground{% if current == 'core:about' or request.path|slice:':7' == '/about/' %} text-indigo-600 dark:text-indigo-400 font-semibold{% endif %}"
+      class="nav-link focus-ring flex w-full rounded-md px-3 py-2 hover:bg-accent hover:text-accent-foreground{% if current == 'core:about' or request.path|slice:':7' == '/about/' %} text-indigo-600 dark:text-indigo-400 font-semibold{% endif %}"
       {% if current == 'core:about' or request.path|slice:':7' == '/about/' %}aria-current="page"{% endif %}
       @click="open = false"
       role="menuitem">
@@ -172,7 +173,7 @@
         {% else %}
           href="{% url 'users:student_home' %}"
         {% endif %}
-        class="nav-link flex w-full rounded-md px-3 py-2 hover:bg-accent hover:text-accent-foreground{% if current == 'users:student_home' or current == 'users:teacher_home' or current == 'users:admin_home' %} text-indigo-600 dark:text-indigo-400 font-semibold{% endif %}"
+        class="nav-link focus-ring flex w-full rounded-md px-3 py-2 hover:bg-accent hover:text-accent-foreground{% if current == 'users:student_home' or current == 'users:teacher_home' or current == 'users:admin_home' %} text-indigo-600 dark:text-indigo-400 font-semibold{% endif %}"
         {% if current == 'users:student_home' or current == 'users:teacher_home' or current == 'users:admin_home' %}aria-current="page"{% endif %}
         @click="open = false"
         role="menuitem">
@@ -183,7 +184,7 @@
       {# Django admin (staff) #}
       {% if request.user.is_staff %}
         <a href="/admin/"
-          class="nav-link flex w-full rounded-md px-3 py-2 hover:bg-accent hover:text-accent-foreground{% if request.path|slice:':7' == '/admin/' %} text-indigo-600 dark:text-indigo-400 font-semibold{% endif %}"
+          class="nav-link focus-ring flex w-full rounded-md px-3 py-2 hover:bg-accent hover:text-accent-foreground{% if request.path|slice:':7' == '/admin/' %} text-indigo-600 dark:text-indigo-400 font-semibold{% endif %}"
           {% if request.path|slice:':7' == '/admin/' %}aria-current="page"{% endif %}
           @click="open = false"
           role="menuitem">
@@ -195,7 +196,7 @@
       {# Register (admin role only) #}
       {% if request.user|is_admin %}
         <a href="{% url 'users:register' %}"
-          class="nav-link flex w-full rounded-md px-3 py-2 hover:bg-accent hover:text-accent-foreground{% if current == 'users:register' or request.path|slice:':15' == '/users/register' %} text-indigo-600 dark:text-indigo-400 font-semibold{% endif %}"
+          class="nav-link focus-ring flex w-full rounded-md px-3 py-2 hover:bg-accent hover:text-accent-foreground{% if current == 'users:register' or request.path|slice:':15' == '/users/register' %} text-indigo-600 dark:text-indigo-400 font-semibold{% endif %}"
           {% if current == 'users:register' or request.path|slice:':15' == '/users/register' %}aria-current="page"{% endif %}
           @click="open = false"
           role="menuitem">
@@ -207,7 +208,7 @@
       {# Optional role placeholders #}
       {% if request.user|is_student %}
         <a href="#"
-          class="nav-link flex w-full rounded-md px-3 py-2 hover:bg-accent hover:text-accent-foreground"
+          class="nav-link focus-ring flex w-full rounded-md px-3 py-2 hover:bg-accent hover:text-accent-foreground"
           @click="open = false"
           role="menuitem">
           {% icon 'school' class_='h-5 w-5 align-middle shrink-0' %}
@@ -215,7 +216,7 @@
         </a>
       {% elif request.user|is_teacher %}
         <a href="#"
-          class="nav-link flex w-full rounded-md px-3 py-2 hover:bg-accent hover:text-accent-foreground"
+          class="nav-link focus-ring flex w-full rounded-md px-3 py-2 hover:bg-accent hover:text-accent-foreground"
           @click="open = false"
           role="menuitem">
           <span>Availability</span>
@@ -229,7 +230,7 @@
       <form method="post" action="{% url 'users:logout' %}" class="mt-1 px-3 py-2">
         {% csrf_token %}
         <button type="submit"
-                class="flex w-full items-center gap-2 justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 h-9 px-4 py-2 border border-border bg-background hover:bg-accent hover:text-accent-foreground"
+                class="focus-ring flex w-full items-center gap-2 justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors h-9 px-4 py-2 border border-border bg-background hover:bg-accent hover:text-accent-foreground"
                 @click="open = false">
           {% icon 'logout' class_='h-5 w-5 align-middle shrink-0' %}
           <span>Logout</span>
@@ -243,7 +244,7 @@
       </div>
 
       <a href="{% url 'users:login' %}"
-        class="nav-link flex w-full rounded-md px-3 py-2 hover:bg-accent hover:text-accent-foreground{% if current == 'users:login' %} text-indigo-600 dark:text-indigo-400 font-semibold{% endif %}"
+        class="focus-ring nav-link flex w-full rounded-md px-3 py-2 hover:bg-accent hover:text-accent-foreground{% if current == 'users:login' %} text-indigo-600 dark:text-indigo-400 font-semibold{% endif %}"
         {% if current == 'users:login' %}aria-current="page"{% endif %}
         @click="open = false"
         role="menuitem">

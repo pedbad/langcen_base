@@ -1,3 +1,4 @@
+{# users/core/tempolates/core/partials/footer.html #}
 {# Footer
    - University style: left = logo + copyright, right = quick links (+ socials)
    - Theme-aware via bg-background / text-foreground / border-border
@@ -41,7 +42,7 @@
         © {% now "Y" %} University of Cambridge.</p>
       <p class="leading-snug">Developed by the eLearning team,
         <a href="https://www.langcen.cam.ac.uk/" target="_blank" rel="noopener"
-           class="underline-offset-4 hover:underline hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+           class="focus-ring rounded-md px-1 underline-offset-4 hover:underline hover:text-foreground">
           Language Centre
         </a>.
       </p>
@@ -49,13 +50,13 @@
       <div class="flex flex-col items-center md:items-start md:flex-row md:gap-6 gap-2">
         <a href="https://www.cam.ac.uk/about-this-site/terms-and-conditions"
           target="_blank"
-          class="hover:text-foreground transition-colors">
+          class="focus-ring rounded-md px-1 hover:text-foreground transition-colors">
            Terms & Conditions
         </a>
         <a href="https://www.cam.ac.uk/about-this-site/accessibility"
           target="_blank"
-          class="hover:text-foreground transition-colors">Accessibility</a>
-        <a href="#" class="hover:text-foreground transition-colors">Support</a>
+          class="focus-ring rounded-md px-1 hover:text-foreground transition-colors">Accessibility</a>
+        <a href="#" class="focus-ring rounded-md px-1 hover:text-foreground transition-colors">Support</a>
       </div>
     </div>
 

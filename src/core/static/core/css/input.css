@@ -151,6 +151,11 @@
    Utilities
    ========================================================================== */
 @layer utilities {
+  /* Transition helper for menus/panels (pair with reduced-motion guard) */
+  .transition-standard {
+    @apply transition ease-out duration-200;
+  }
+
   /* -------------------------------------------
      Navigation Links
      ------------------------------------------- */
@@ -258,5 +263,34 @@
   /* Stronger, reusable card border */
   .card-solid {
     @apply border-[1.5px] border-border/90 dark:border-white/60 shadow-md; /* Increased opacity for dark mode */
+  }
+  /* === Accessible, tokenized focus rings (new) === */
+  .focus-ring {
+    @apply outline-none focus-visible:ring-2 focus-visible:ring-ring
+           focus-visible:ring-offset-2 focus-visible:ring-offset-background
+           rounded-md transition-shadow;
+  }
+
+  .focus-ring-subtle {
+    @apply outline-none focus-visible:ring-1 focus-visible:ring-border
+           focus-visible:ring-offset-2 focus-visible:ring-offset-background
+           rounded-md transition-shadow;
+  }
+
+}
+
+/* ==========================================================================
+   Reduced Motion (global guard for transition helpers)
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  /* Disable smooth scroll for accessibility */
+  html:focus-within {
+    scroll-behavior: auto;
+  }
+
+  /* Any element using our transition helper will not animate */
+  .transition-standard {
+    transition-duration: 0s !important;
+    animation-duration: 0s !important;
   }
 }
