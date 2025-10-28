@@ -129,17 +129,25 @@ TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [
-            BASE_DIR / "core" / "templates",   # app/site templates
-            BASE_DIR / "templates",            # ← shadcn-django components (templates/cotton/**)
+            BASE_DIR / "core" / "templates",  # app/site templates
+            BASE_DIR / "templates",           # shadcn-django components (templates/cotton/**)
         ],
-        "APP_DIRS": True,
-        "OPTIONS": { "context_processors": [
-            "django.template.context_processors.request",
-            "django.contrib.auth.context_processors.auth",
-            "django.contrib.messages.context_processors.messages",
-        ]},
+        "APP_DIRS": False,  # Cotton provides its own loader
+        "OPTIONS": {
+            "loaders": [
+                "django_cotton.loader.Loader",                # 1) Cotton
+                "django.template.loaders.filesystem.Loader",  # 2) Project-level templates
+                "django.template.loaders.app_directories.Loader",  # 3) App templates
+            ],
+            "context_processors": [
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+            ],
+        },
     },
 ]
+
 ```
 
 > We commit the `templates/cotton/**` folder. Nothing else is needed at runtime besides installing Python/Node deps.
@@ -188,7 +196,7 @@ The Tailwind entry lives at **`src/core/static/core/css/input.css`** and is comp
 /* Design tokens (Tailwind v4 @theme) */
 @theme {
   --color-background: oklch(1 0 0);
-  --color-foreground: oklch(0.145 0 0);
+  --color-foreground: oklch(0.12 0 0);
   --color-card: oklch(1 0 0);
   --color-card-foreground: oklch(0.145 0 0);
   --color-popover: oklch(1 0 0);
@@ -198,7 +206,7 @@ The Tailwind entry lives at **`src/core/static/core/css/input.css`** and is comp
   --color-secondary: oklch(0.97 0 0);
   --color-secondary-foreground: oklch(0.205 0 0);
   --color-muted: oklch(0.97 0 0);
-  --color-muted-foreground: oklch(0.556 0 0);
+  --color-muted-foreground: oklch(0.50 0 0);
   --color-accent: oklch(0.97 0 0);
   --color-accent-foreground: oklch(0.205 0 0);
   --color-destructive: oklch(0.577 0.245 27.325);
@@ -446,11 +454,12 @@ Creating a non-staff, non-superuser `User` triggers an **invite email** (via pas
   - `users/registration/password_reset_email.html`
 
 **Auth URLs (namespaced):**
-- Login: `users:login` → `/users/login/`
-- Logout (POST): `users:logout` → `/users/logout/`
-- Password reset: `users:password_reset` → `/users/password-reset/`
-- Confirm: `users:password_reset_confirm` → `/users/reset/<uid>/<token>/`
-- Complete: `users:password_reset_complete` → `/users/reset/done/`
+- Login: `users:login → /users/login/`
+- Logout (POST): `users:logout → /users/logout/`
+- Password reset (start): `users:password_reset → /users/password-reset/`
+- Password reset (done):  `users:password_reset_done → /users/password-reset/done/`
+- Password reset (confirm): `users:password_reset_confirm → /users/reset/<uid>/<token>/`
+- Password reset (complete): `users:password_reset_complete → /users/reset/done/`
 
 **Custom logic kept modular:**
 - Views: `users/views.py` (email-only login, role redirects)

@@ -104,8 +104,15 @@
     {# RIGHT: desktop actions (≥ sm) #}
     <div class="hidden sm:flex items-center gap-2 ml-auto">
       {% if request.user.is_authenticated %}
+        {% if request.user|is_teacher %}
+          {% url 'users:teacher_home' as profile_href %}
+        {% elif request.user|is_admin %}
+          {% url 'users:admin_home' as profile_href %}
+        {% else %}
+          {% url 'users:student_home' as profile_href %}
+        {% endif %}
         <a
-          href="#"
+          href="{{ profile_href }}"
           class="focus-ring inline-flex items-center gap-2 text-sm hover:text-foreground/80 px-2 py-1.5 rounded-md"
         >
           {% icon 'verified_user' class_='h-5 w-5 align-middle shrink-0' %}
