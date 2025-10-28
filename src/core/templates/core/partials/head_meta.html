@@ -1,15 +1,14 @@
-{# users/core/tempolates/core/partials/head_meta.html #}
+{# src/core/templates/core/partials/head_meta.html #}
 {% load static %}
-<link rel="icon" href="{% static 'core/img/favicon.ico' %}">
-<link rel="apple-touch-icon" href="{% static 'core/img/apple-touch-icon.png' %}">
-<meta name="color-scheme" content="light dark">
 
 {# ─── Favicons & Progressive Web App manifest ─────────────────────────────────────────────── #}
-<link rel="icon" href="{% static 'core/favicon/favicon.svg' %}" type="image/svg+xml">
-<link rel="icon" sizes="32x32" href="{% static 'core/favicon/favicon-32x32.png' %}">
-<link rel="icon" sizes="16x16" href="{% static 'core/favicon/favicon-16x16.png' %}">
-<link rel="apple-touch-icon" href="{% static 'core/favicon/apple-icon-180.png' %}">
+<link rel="icon" type="image/svg+xml" href="{% static 'core/favicon/favicon.svg' %}">
+<link rel="icon" type="image/png" sizes="32x32" href="{% static 'core/favicon/favicon-32x32.png' %}">
+<link rel="icon" type="image/png" sizes="16x16" href="{% static 'core/favicon/favicon-16x16.png' %}">
+<link rel="apple-touch-icon" sizes="180x180" href="{% static 'core/favicon/apple-icon-180.png' %}">
 <link rel="manifest" href="{% static 'core/favicon/site.webmanifest' %}">
+
+<meta name="color-scheme" content="light dark">
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0A4D8C">
 
