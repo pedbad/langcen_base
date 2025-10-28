@@ -1,38 +1,50 @@
-{# users/core/tempolates/core/partials/navbar.html #}
+{# src/core/templates/core/partials/navbar.html #}
 {% load navigation icons user_roles %}
 
 {#
-  Navbar (Tailwind v4 + cotton/shadcn classes)
-  - Cleaned active_url / aria_current usage
-  - Consistent .nav-link styling (works in light/dark modes)
+  Navbar (Tailwind v4 + Cotton/ShadCN)
+  - Consistent .nav-link styling (light/dark)
+  - Uses active_url / aria_current templatetags (no resolver_match access)
+  - Mobile panel respects reduced motion via .transition-standard
 #}
 
-<nav x-data="{ open: false }" aria-label="Primary navigation" class="text-foreground">
+<nav
+  x-data="{ open: false }"
+  aria-label="Primary navigation"
+  class="text-foreground"
+>
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-    <!-- LEFT: logo + desktop nav -->
+
+    {# LEFT: logo + desktop nav #}
     <div class="flex items-center gap-4">
       {% include "core/partials/logo.html" %}
 
-      {# DESKTOP NAV (≥sm) #}
+      {# DESKTOP NAV (≥ sm) #}
       <div class="hidden sm:flex items-center gap-6 ml-6">
-        <!-- Public: Home -->
-        <a href="{% url 'core:landing' %}"
-           class="nav-link focus-ring rounded-md px-2 py-1.5 {% active_url 'core:landing' %}"
-           {% aria_current 'core:landing' %}>
+
+        {# Public: Home #}
+        <a
+          href="{% url 'core:landing' %}"
+          class="nav-link focus-ring rounded-md px-2 py-1.5 {% active_url 'core:landing' %}"
+          {% aria_current 'core:landing' %}
+        >
           {% icon 'home' class_='h-5 w-5 align-middle shrink-0' %}
           <span>Home</span>
         </a>
 
-        <!-- Public: About -->
-        <a href="{% url 'core:about' %}"
-           class="nav-link focus-ring rounded-md px-2 py-1.5 {% active_url 'core:about' startswith='/about/' %}"
-           {% aria_current 'core:about' startswith='/about/' %}>
+        {# Public: About (treat /about/* as active) #}
+        <a
+          href="{% url 'core:about' %}"
+          class="nav-link focus-ring rounded-md px-2 py-1.5 {% active_url 'core:about' startswith='/about/' %}"
+          {% aria_current 'core:about' startswith='/about/' %}
+        >
           {% icon 'info' class_='h-5 w-5 align-middle shrink-0' %}
           <span>About</span>
         </a>
 
         {% if request.user.is_authenticated %}
-          <!-- Dashboard (multi-role) -->
+
+          {# Dashboard (multi-role) #}
           {% aria_current 'users:student_home' 'users:teacher_home' 'users:admin_home' as current_attr %}
           <a
             {% if request.user|is_teacher %}
@@ -43,35 +55,37 @@
               href="{% url 'users:student_home' %}"
             {% endif %}
             class="nav-link focus-ring flex w-full rounded-md px-3 py-2 {% active_url 'users:student_home' 'users:teacher_home' 'users:admin_home' %}"
-            {{ current_attr }}>
+            {{ current_attr }}
+          >
             {% icon 'dashboard' class_='h-5 w-5 align-middle shrink-0' %}
             <span>Dashboard</span>
           </a>
 
-
-          <!-- Staff-only: Admin -->
+          {# Staff-only: Admin #}
           {% if request.user.is_staff %}
-            <a href="/admin/"
+            <a
+              href="/admin/"
               class="nav-link focus-ring rounded-md px-2 py-1.5 {% active_url startswith='/admin/' %}"
-              {% aria_current startswith='/admin/' %}>
+              {% aria_current startswith='/admin/' %}
+            >
               {% icon 'admin' class_='h-5 w-5 align-middle shrink-0' %}
               <span>Admin</span>
             </a>
           {% endif %}
 
-
-          <!-- Admin-only: Register -->
+          {# Admin-only: Register #}
           {% if request.user|is_admin %}
-            <a href="{% url 'users:register' %}"
+            <a
+              href="{% url 'users:register' %}"
               class="nav-link focus-ring rounded-md px-2 py-1.5 {% active_url 'users:register' startswith='/users/register' %}"
-              {% aria_current 'users:register' startswith='/users/register' %}>
+              {% aria_current 'users:register' startswith='/users/register' %}
+            >
               {% icon 'user_plus' class_='h-5 w-5 align-middle shrink-0' %}
               <span>Register</span>
             </a>
           {% endif %}
 
-
-          <!-- Role placeholders -->
+          {# Role placeholders (optional) #}
           {% if request.user|is_student %}
             <a href="#" class="nav-link">
               {% icon 'school' class_='h-5 w-5 align-middle shrink-0' %}
@@ -82,30 +96,38 @@
               <span>Availability</span>
             </a>
           {% endif %}
+
         {% endif %}
       </div>
     </div>
 
-    {# RIGHT: desktop actions (≥sm) #}
+    {# RIGHT: desktop actions (≥ sm) #}
     <div class="hidden sm:flex items-center gap-2 ml-auto">
       {% if request.user.is_authenticated %}
-        <a href="#"
-          class="focus-ring inline-flex items-center gap-2 text-sm hover:text-foreground/80 px-2 py-1.5 rounded-md">
+        <a
+          href="#"
+          class="focus-ring inline-flex items-center gap-2 text-sm hover:text-foreground/80 px-2 py-1.5 rounded-md"
+        >
           {% icon 'verified_user' class_='h-5 w-5 align-middle shrink-0' %}
           <span>{{ request.user.get_short_name|default:request.user.email }}</span>
         </a>
+
         <form method="post" action="{% url 'users:logout' %}">
           {% csrf_token %}
-          <button type="submit"
-                  class="focus-ring inline-flex items-center gap-2 justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors h-9 px-4 py-2 border border-border bg-background hover:bg-accent hover:text-accent-foreground">
+          <button
+            type="submit"
+            class="focus-ring inline-flex items-center gap-2 justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors h-9 px-4 py-2 border border-border bg-background hover:bg-accent hover:text-accent-foreground"
+          >
             {% icon 'logout' class_='h-5 w-5 align-middle shrink-0' %}
             <span>Logout</span>
           </button>
         </form>
       {% else %}
-        <a href="{% url 'users:login' %}"
-           class="focus-ring inline-flex items-center gap-2 justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors h-9 px-4 py-2 border border-border bg-background hover:bg-accent hover:text-accent-foreground {% active_url 'users:login' %}"
-           {% aria_current 'users:login' %}>
+        <a
+          href="{% url 'users:login' %}"
+          class="focus-ring inline-flex items-center gap-2 justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors h-9 px-4 py-2 border border-border bg-background hover:bg-accent hover:text-accent-foreground {% active_url 'users:login' %}"
+          {% aria_current 'users:login' %}
+        >
           {% icon 'login' class_='h-5 w-5 align-middle shrink-0' %}
           <span>Login</span>
         </a>
@@ -114,18 +136,21 @@
       {% include "core/partials/theme_toggle.html" with variant="desktop" %}
     </div>
 
-    {# MOBILE toggle #}
-    <button type="button"
-            class="focus-ring sm:hidden inline-flex items-center rounded-md border border-border bg-background p-2 text-sm shadow-sm hover:bg-accent hover:text-accent-foreground"
-            @click="open = !open"
-            :aria-expanded="open.toString()"
-            aria-controls="mobile-menu">
+    {# MOBILE: toggle button #}
+    <button
+      type="button"
+      class="focus-ring sm:hidden inline-flex items-center rounded-md border border-border bg-background p-2 text-sm shadow-sm hover:bg-accent hover:text-accent-foreground"
+      @click="open = !open"
+      :aria-expanded="open.toString()"
+      aria-controls="mobile-menu"
+    >
       <span class="sr-only">Toggle navigation</span>
       {% icon 'menu' class_='h-5 w-5' label='Toggle navigation' %}
     </button>
+
   </div>
 
-  {# MOBILE PANEL (<sm) #}
+  {# MOBILE PANEL (< sm) — uses active_url/aria_current instead of resolver_match #}
   <div
     id="mobile-menu"
     class="sm:hidden border-t border-border bg-background transition-standard"
@@ -138,26 +163,29 @@
     @keydown.escape.window="open = false"
     @click.outside="open = false"
     role="menu"
-    :aria-hidden="(!open).toString()">
-
-    {% with current=request.resolver_match.view_name %}
+    :aria-hidden="(!open).toString()"
+  >
 
     {# Home #}
-    <a href="{% url 'core:landing' %}"
-      class="nav-link focus-ring flex w-full rounded-md px-3 py-2 hover:bg-accent hover:text-accent-foreground{% if current == 'core:landing' %} text-indigo-600 dark:text-indigo-400 font-semibold{% endif %}"
-      {% if current == 'core:landing' %}aria-current="page"{% endif %}
+    <a
+      href="{% url 'core:landing' %}"
+      class="nav-link focus-ring flex w-full rounded-md px-3 py-2 hover:bg-accent hover:text-accent-foreground {% active_url 'core:landing' %}"
+      {% aria_current 'core:landing' %}
       @click="open = false"
-      role="menuitem">
+      role="menuitem"
+    >
       {% icon 'home' class_='h-5 w-5 align-middle shrink-0' %}
       <span>Home</span>
     </a>
 
-    {# About (treat /about/* as active too) #}
-    <a href="{% url 'core:about' %}"
-      class="nav-link focus-ring flex w-full rounded-md px-3 py-2 hover:bg-accent hover:text-accent-foreground{% if current == 'core:about' or request.path|slice:':7' == '/about/' %} text-indigo-600 dark:text-indigo-400 font-semibold{% endif %}"
-      {% if current == 'core:about' or request.path|slice:':7' == '/about/' %}aria-current="page"{% endif %}
+    {# About (treat /about/* as active) #}
+    <a
+      href="{% url 'core:about' %}"
+      class="nav-link focus-ring flex w-full rounded-md px-3 py-2 hover:bg-accent hover:text-accent-foreground {% active_url 'core:about' startswith='/about/' %}"
+      {% aria_current 'core:about' startswith='/about/' %}
       @click="open = false"
-      role="menuitem">
+      role="menuitem"
+    >
       {% icon 'info' class_='h-5 w-5 align-middle shrink-0' %}
       <span>About</span>
     </a>
@@ -165,6 +193,7 @@
     {% if request.user.is_authenticated %}
 
       {# Dashboard (role-aware href) #}
+      {% aria_current 'users:student_home' 'users:teacher_home' 'users:admin_home' as current_attr %}
       <a
         {% if request.user|is_teacher %}
           href="{% url 'users:teacher_home' %}"
@@ -173,21 +202,24 @@
         {% else %}
           href="{% url 'users:student_home' %}"
         {% endif %}
-        class="nav-link focus-ring flex w-full rounded-md px-3 py-2 hover:bg-accent hover:text-accent-foreground{% if current == 'users:student_home' or current == 'users:teacher_home' or current == 'users:admin_home' %} text-indigo-600 dark:text-indigo-400 font-semibold{% endif %}"
-        {% if current == 'users:student_home' or current == 'users:teacher_home' or current == 'users:admin_home' %}aria-current="page"{% endif %}
+        class="nav-link focus-ring flex w-full rounded-md px-3 py-2 hover:bg-accent hover:text-accent-foreground {% active_url 'users:student_home' 'users:teacher_home' 'users:admin_home' %}"
+        {{ current_attr }}
         @click="open = false"
-        role="menuitem">
+        role="menuitem"
+      >
         {% icon 'dashboard' class_='h-5 w-5 align-middle shrink-0' %}
         <span>Dashboard</span>
       </a>
 
       {# Django admin (staff) #}
       {% if request.user.is_staff %}
-        <a href="/admin/"
-          class="nav-link focus-ring flex w-full rounded-md px-3 py-2 hover:bg-accent hover:text-accent-foreground{% if request.path|slice:':7' == '/admin/' %} text-indigo-600 dark:text-indigo-400 font-semibold{% endif %}"
-          {% if request.path|slice:':7' == '/admin/' %}aria-current="page"{% endif %}
+        <a
+          href="/admin/"
+          class="nav-link focus-ring flex w-full rounded-md px-3 py-2 hover:bg-accent hover:text-accent-foreground {% active_url startswith='/admin/' %}"
+          {% aria_current startswith='/admin/' %}
           @click="open = false"
-          role="menuitem">
+          role="menuitem"
+        >
           {% icon 'admin' class_='h-5 w-5 align-middle shrink-0' %}
           <span>Admin</span>
         </a>
@@ -195,11 +227,13 @@
 
       {# Register (admin role only) #}
       {% if request.user|is_admin %}
-        <a href="{% url 'users:register' %}"
-          class="nav-link focus-ring flex w-full rounded-md px-3 py-2 hover:bg-accent hover:text-accent-foreground{% if current == 'users:register' or request.path|slice:':15' == '/users/register' %} text-indigo-600 dark:text-indigo-400 font-semibold{% endif %}"
-          {% if current == 'users:register' or request.path|slice:':15' == '/users/register' %}aria-current="page"{% endif %}
+        <a
+          href="{% url 'users:register' %}"
+          class="nav-link focus-ring flex w-full rounded-md px-3 py-2 hover:bg-accent hover:text-accent-foreground {% active_url 'users:register' startswith='/users/register' %}"
+          {% aria_current 'users:register' startswith='/users/register' %}
           @click="open = false"
-          role="menuitem">
+          role="menuitem"
+        >
           {% icon 'user_plus' class_='h-5 w-5 align-middle shrink-0' %}
           <span>Register</span>
         </a>
@@ -207,18 +241,22 @@
 
       {# Optional role placeholders #}
       {% if request.user|is_student %}
-        <a href="#"
+        <a
+          href="#"
           class="nav-link focus-ring flex w-full rounded-md px-3 py-2 hover:bg-accent hover:text-accent-foreground"
           @click="open = false"
-          role="menuitem">
+          role="menuitem"
+        >
           {% icon 'school' class_='h-5 w-5 align-middle shrink-0' %}
           <span>Courses</span>
         </a>
       {% elif request.user|is_teacher %}
-        <a href="#"
+        <a
+          href="#"
           class="nav-link focus-ring flex w-full rounded-md px-3 py-2 hover:bg-accent hover:text-accent-foreground"
           @click="open = false"
-          role="menuitem">
+          role="menuitem"
+        >
           <span>Availability</span>
         </a>
       {% endif %}
@@ -229,9 +267,11 @@
 
       <form method="post" action="{% url 'users:logout' %}" class="mt-1 px-3 py-2">
         {% csrf_token %}
-        <button type="submit"
-                class="focus-ring flex w-full items-center gap-2 justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors h-9 px-4 py-2 border border-border bg-background hover:bg-accent hover:text-accent-foreground"
-                @click="open = false">
+        <button
+          type="submit"
+          class="focus-ring flex w-full items-center gap-2 justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors h-9 px-4 py-2 border border-border bg-background hover:bg-accent hover:text-accent-foreground"
+          @click="open = false"
+        >
           {% icon 'logout' class_='h-5 w-5 align-middle shrink-0' %}
           <span>Logout</span>
         </button>
@@ -243,18 +283,17 @@
         {% include "core/partials/theme_toggle.html" with variant="mobile" %}
       </div>
 
-      <a href="{% url 'users:login' %}"
-        class="focus-ring nav-link flex w-full rounded-md px-3 py-2 hover:bg-accent hover:text-accent-foreground{% if current == 'users:login' %} text-indigo-600 dark:text-indigo-400 font-semibold{% endif %}"
-        {% if current == 'users:login' %}aria-current="page"{% endif %}
+      <a
+        href="{% url 'users:login' %}"
+        class="focus-ring nav-link flex w-full rounded-md px-3 py-2 hover:bg-accent hover:text-accent-foreground {% active_url 'users:login' %}"
+        {% aria_current 'users:login' %}
         @click="open = false"
-        role="menuitem">
+        role="menuitem"
+      >
         {% icon 'login' class_='h-5 w-5 align-middle shrink-0' %}
         <span>Login</span>
       </a>
 
     {% endif %}
-
-    {% endwith %}
   </div>
-
 </nav>
