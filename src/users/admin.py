@@ -76,7 +76,10 @@ class UserAdmin(ImportExportModelAdmin, BaseUserAdmin, ModelAdmin):
 
     # Keep your existing fieldsets
     fieldsets = (
-        (None, {"fields": ("email", "password_link")}),  # button instead of raw password field
+        (
+            None,
+            {"fields": ("email", "password_link")},
+        ),  # button instead of raw password field
         (_("Personal info"), {"fields": ("first_name", "last_name")}),
         (
             _("Permissions"),
@@ -100,7 +103,14 @@ class UserAdmin(ImportExportModelAdmin, BaseUserAdmin, ModelAdmin):
             None,
             {
                 "classes": ("wide",),
-                "fields": ("email", "password1", "password2", "role", "is_staff", "is_superuser"),
+                "fields": (
+                    "email",
+                    "password1",
+                    "password2",
+                    "role",
+                    "is_staff",
+                    "is_superuser",
+                ),
             },
         ),
     )

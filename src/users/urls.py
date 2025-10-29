@@ -16,11 +16,19 @@ urlpatterns = [
     path("admin-home/", views.admin_home, name="admin_home"),
     # password reset (Django’s built-in views, via our wrappers)
     path("password-reset/", views.PasswordResetStartView.as_view(), name="password_reset"),
-    path("password-reset/done/", views.PasswordResetDoneView.as_view(), name="password_reset_done"),
+    path(
+        "password-reset/done/",
+        views.PasswordResetDoneView.as_view(),
+        name="password_reset_done",
+    ),
     path(
         "reset/<uidb64>/<token>/",
         views.PasswordResetConfirmView.as_view(),
         name="password_reset_confirm",
     ),
-    path("reset/done/", views.PasswordResetCompleteView.as_view(), name="password_reset_complete"),
+    path(
+        "reset/done/",
+        views.PasswordResetCompleteView.as_view(),
+        name="password_reset_complete",
+    ),
 ]

@@ -21,7 +21,9 @@ def test_login_uses_settings_driven_role_mapping(client):
     """
     user = User.objects.create_user(email="maptest@ex.com", password="pass1234", role="student")
     resp = client.post(
-        reverse("users:login"), {"username": user.email, "password": "pass1234"}, follow=False
+        reverse("users:login"),
+        {"username": user.email, "password": "pass1234"},
+        follow=False,
     )
 
     assert resp.status_code == 302
