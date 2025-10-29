@@ -3,10 +3,10 @@
 # Purpose: Prove that USERS_ROLE_REDIRECTS from settings drives the post-login destination.
 # This ensures the users app stays decoupled from other apps by using URL names only.
 
-import pytest
 from django.contrib.auth import get_user_model
 from django.test import override_settings
 from django.urls import reverse
+import pytest
 
 User = get_user_model()
 

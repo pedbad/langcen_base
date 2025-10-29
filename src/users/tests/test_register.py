@@ -1,8 +1,8 @@
-import pytest
 from django.contrib.auth import get_user_model
 from django.core import mail
 from django.test import override_settings
 from django.urls import reverse
+import pytest
 
 User = get_user_model()
 

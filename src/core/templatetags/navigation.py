@@ -1,6 +1,6 @@
 # src/core/templatetags/navigation.py
 from django import template
-from django.urls import Resolver404, resolve
+from django.urls import resolve, Resolver404
 from django.utils.safestring import mark_safe
 
 register = template.Library()

@@ -15,6 +15,5 @@ class InvitePasswordResetForm(PasswordResetForm):
         email_field = UserModel.get_email_field_name()
         # active users whose email matches (case-insensitive)
         qs = UserModel._default_manager.filter(**{f"{email_field}__iexact": email}, is_active=True)
-        for user in qs.iterator():
-            # Key change: DO NOT filter out users with unusable passwords
-            yield user
+        # New (Python 3+)
+        yield from qs.iterator()

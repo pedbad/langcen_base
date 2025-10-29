@@ -3,11 +3,11 @@
 # Purpose: Verify that the password-reset start page renders and
 # that posting a user's email queues an email (using Django's locmem backend in tests).
 
-import pytest
 from django.contrib.auth import get_user_model
 from django.core import mail
 from django.test import override_settings
 from django.urls import reverse
+import pytest
 
 User = get_user_model()
 

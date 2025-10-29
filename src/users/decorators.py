@@ -1,6 +1,6 @@
 # src/users/decorators.py
+from collections.abc import Iterable
 from functools import wraps
-from typing import Iterable
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -18,7 +18,7 @@ def _normalize_roles(allowed_roles) -> set[str]:
     """
     Support @role_required("teacher") and @role_required(["teacher","admin"])
     """
-    if isinstance(allowed_roles, (list, tuple, set)):
+    if isinstance(allowed_roles, list | tuple | set):
         return set(allowed_roles)
     return {allowed_roles}
 

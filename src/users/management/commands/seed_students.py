@@ -23,7 +23,6 @@
 
 import csv
 from pathlib import Path
-from typing import Optional
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
@@ -99,13 +98,13 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         csv_path = Path(options["csv_path"])
-        default_password: Optional[str] = options["default_password"]
+        default_password: str | None = options["default_password"]
         update: bool = options["update"]
         dry_run: bool = options["dry_run"]
         send_welcome: bool = options["send_welcome"]
-        site_domain: Optional[str] = options["site_domain"]
+        site_domain: str | None = options["site_domain"]
         use_https: bool = options["use_https"]
-        from_email: Optional[str] = options["from_email"]
+        from_email: str | None = options["from_email"]
 
         if not csv_path.exists():
             raise CommandError(f"CSV not found: {csv_path}")
@@ -285,10 +284,10 @@ class Command(BaseCommand):
         self,
         user: User,
         email: str,
-        plain_password: Optional[str],
+        plain_password: str | None,
         site_domain: str,
         use_https: bool,
-        from_email: Optional[str],
+        from_email: str | None,
         dry_run: bool,
     ):
         """Send a welcome email with login info and a password reset link."""

@@ -2,9 +2,9 @@
 #
 # Purpose: End-to-end tests for login/logout and role-based redirects.
 
-import pytest
 from django.contrib.auth import get_user_model
 from django.urls import reverse
+import pytest
 
 User = get_user_model()
 

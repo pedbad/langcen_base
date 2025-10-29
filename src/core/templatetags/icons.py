@@ -2,7 +2,7 @@
 from uuid import uuid4
 
 from django import template
-from django.template.loader import TemplateDoesNotExist, get_template
+from django.template.loader import get_template, TemplateDoesNotExist
 from django.utils.safestring import mark_safe
 
 register = template.Library()
