@@ -1,27 +1,5 @@
-<header class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur border-b">
-  <nav class="container mx-auto flex items-center justify-between p-3">
-    <a href="/" class="font-semibold">langcen_base</a>
-    <div class="flex items-center gap-4 text-sm text-slate-600">
-      <!-- role-aware links later -->
-      <a href="{% url 'core:landing' %}" class="group inline-flex items-center border-b-2 border-transparent px-1 py-4 text-sm font-medium text-gray-400 hover:border-white/20 hover:text-gray-300">
-        <svg viewBox="0 0 20 20" fill="currentColor" data-slot="icon" aria-hidden="true" class="mr-2 -ml-0.5 size-5 text-gray-500 group-hover:text-gray-400">
-          <path fill-rule="evenodd" d="M9.293 2.293a1 1 0 0 1 1.414 0l7 7A1 1 0 0 1 17 11h-1v6a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-6H3a1 1 0 0 1-.707-1.707l7-7Z" clip-rule="evenodd" />
-        </svg>
-        <span>Home</span>
-      </a>
-      <a href="{% url 'core:about' %}" aria-current="page" class="group inline-flex items-center border-b-2 border-indigo-400 px-1 py-4 text-sm font-medium text-indigo-400">
-          <svg viewBox="0 0 20 20" fill="currentColor" data-slot="icon" aria-hidden="true" class="mr-2 -ml-0.5 size-5 text-indigo-400">
-            <path d="M10 1a6 6 0 0 0-3.815 10.631C7.237 12.5 8 13.443 8 14.456v.644a.75.75 0 0 0 .572.729 6.016 6.016 0 0 0 2.856 0A.75.75 0 0 0 12 15.1v-.644c0-1.013.762-1.957 1.815-2.825A6 6 0 0 0 10 1ZM8.863 17.414a.75.75 0 0 0-.226 1.483 9.066 9.066 0 0 0 2.726 0 .75.75 0 0 0-.226-1.483 7.553 7.553 0 0 1-2.274 0Z" />
-          </svg>
-          <span>About</span>
-        </a>
-    </div>
-  </nav>
-
-
-
-
-
-
-
+{# users/core/tempolates/core/partials/header.html #}
+ <header role="banner" aria-label="Site header"
+         class="fixed inset-x-0 top-0 z-40 bg-background/80 backdrop-blur border-b border-border">
+  {% include "core/partials/navbar.html" %}
 </header>

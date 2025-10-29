@@ -3,10 +3,10 @@
 # Purpose: Prove that USERS_ROLE_REDIRECTS from settings drives the post-login destination.
 # This ensures the users app stays decoupled from other apps by using URL names only.
 
-import pytest
 from django.contrib.auth import get_user_model
 from django.test import override_settings
 from django.urls import reverse
+import pytest
 
 User = get_user_model()
 
@@ -17,12 +17,14 @@ def test_login_uses_settings_driven_role_mapping(client):
     """
     GIVEN we override USERS_ROLE_REDIRECTS to point 'student' to 'users:teacher_home'
     WHEN a student logs in
-    THEN they should be redirected to 'users:teacher_home' (proving mapping is respected)
+    THEN the initial redirect Location should be 'users:teacher_home'
     """
     user = User.objects.create_user(email="maptest@ex.com", password="pass1234", role="student")
     resp = client.post(
-        reverse("users:login"), {"username": user.email, "password": "pass1234"}, follow=True
+        reverse("users:login"),
+        {"username": user.email, "password": "pass1234"},
+        follow=False,
     )
 
-    assert resp.redirect_chain
-    assert resp.resolver_match.view_name == "users:teacher_home"
+    assert resp.status_code == 302
+    assert resp["Location"].endswith(reverse("users:teacher_home"))

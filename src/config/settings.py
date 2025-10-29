@@ -10,23 +10,38 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+from datetime import timedelta
 import os
 from pathlib import Path
+from urllib.parse import urlparse
+
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# load .env from repo root
+load_dotenv(BASE_DIR.parent / ".env")
+
+ENV = os.getenv("ENV", "dev")
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-_i7wfo-j!cv)8%2&n-l@5e=4rt5&&2&2&9l9#n=zch9%840@po"
+SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-default")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG", "True").lower() in {"1", "true", "yes", "on"}
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [h.strip() for h in os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")]
+
+
+# Site identity (fork-friendly: env-driven; no hard-coded brand/domain defaults)
+_default_origin = "http://127.0.0.1:8000" if ENV == "dev" else ""
+SITE_ORIGIN = os.getenv("SITE_ORIGIN", _default_origin)
+SITE_NAME = os.getenv("SITE_NAME", "LangCen Base")
 
 
 # Application definition
@@ -51,8 +66,8 @@ INSTALLED_APPS = [
     "import_export",
     # "rest_framework",
     # Local apps
-    "core",
-    "users",
+    "core.apps.CoreConfig",
+    "users.apps.UsersConfig",
 ]
 
 if DEBUG:
@@ -101,19 +116,37 @@ TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [
-            BASE_DIR / "core" / "templates",  # app-level templates
-            BASE_DIR.parent / "templates",  # (project-root-level: shadcn/cotton lives here)
+            BASE_DIR / "core" / "templates",  # app-level
+            BASE_DIR.parent / "templates",  # project root (your cotton/ folder lives here)
         ],
-        "APP_DIRS": True,
+        "APP_DIRS": False,  # <- use loaders explicitly
         "OPTIONS": {
+            "loaders": [
+                "django_cotton.cotton_loader.Loader",  # <- must be first
+                "django.template.loaders.filesystem.Loader",
+                "django.template.loaders.app_directories.Loader",
+            ],
             "context_processors": [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "core.context_processors.site_meta",
             ],
         },
     },
 ]
+
+
+# Only in production
+# Wrap loaders with Django’s cached loader in prod to speed up template lookups:
+# "loaders": [(
+#     "django.template.loaders.cached.Loader",
+#     [
+#         "django_cotton.cotton_loader.Loader",
+#         "django.template.loaders.filesystem.Loader",
+#         "django.template.loaders.app_directories.Loader",
+#     ],
+# )],
 
 WSGI_APPLICATION = "config.wsgi.application"
 
@@ -169,6 +202,14 @@ STATICFILES_DIRS = [
 ]
 STATIC_ROOT = BASE_DIR / "staticfiles"  # for collectstatic in prod
 
+try:
+    if SITE_ORIGIN:
+        _host = urlparse(SITE_ORIGIN).netloc.split(":")[0]
+        if _host and _host not in ALLOWED_HOSTS:
+            ALLOWED_HOSTS.append(_host)
+except Exception:
+    pass
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -180,7 +221,14 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Dev: write emails to files (e.g., for password reset testing)
 # Prod: switch to SMTP via environment variables
 
-ENV = os.getenv("ENV", "dev")  # simple switch; default to dev
+# A fallback domain for emails when no request is available (CLI, Celery, etc.)
+SITE_DOMAIN = os.getenv("SITE_DOMAIN", "")
+
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "no-reply@example.com")
+SERVER_EMAIL = os.getenv("SERVER_EMAIL", DEFAULT_FROM_EMAIL)  # for error emails, optional
+PASSWORD_RESET_TIMEOUT = int(timedelta(hours=24).total_seconds())
+
+TEACHER_ADMIN_FULL_PERMS = True
 
 if ENV == "dev":
     EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
@@ -194,7 +242,12 @@ else:
     EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
     EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
     EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "1") == "1"
-    DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "no-reply@example.com")
+
+
+# if you’re behind a proxy/load balancer
+# If production sits behind a reverse proxy that sets X-Forwarded-Proto, tell Django to trust it:
+# SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+# USE_X_FORWARDED_HOST = True  # if your proxy sets X-Forwarded-Host correctly
 
 
 # --- Users: role-based redirects (override per project) ---------------------
@@ -204,9 +257,7 @@ USERS_ROLE_REDIRECTS = {
     "admin": "users:admin_home",  # Django admin login still works at /admin/
 }
 
-# src/config/settings.py
-LOGOUT_REDIRECT_URL = "users:login"
-
+LOGOUT_REDIRECT_URL = None
 
 # --- django-import-export ----------------------------------------------------
 IMPORT_EXPORT_USE_TRANSACTIONS = True

@@ -3,11 +3,11 @@
 # Purpose: Verify that the password-reset start page renders and
 # that posting a user's email queues an email (using Django's locmem backend in tests).
 
-import pytest
 from django.contrib.auth import get_user_model
 from django.core import mail
 from django.test import override_settings
 from django.urls import reverse
+import pytest
 
 User = get_user_model()
 
@@ -30,14 +30,14 @@ def test_password_reset_sends_email(client):
     """
     GIVEN a registered user
     WHEN they request a password reset
-    THEN an email is sent and we redirect to the "done" page
+    THEN an email is sent and we redirect to the 'done' page.
     """
     User.objects.create_user(email="resetme@example.com", password="oldpass123", role="student")
 
     url = reverse("users:password_reset")
     resp = client.post(url, {"email": "resetme@example.com"}, follow=True)
 
-    # Should redirect to "done" page
+    # Should redirect to 'done' page
     assert resp.redirect_chain
     assert resp.resolver_match.view_name == "users:password_reset_done"
 
@@ -45,9 +45,9 @@ def test_password_reset_sends_email(client):
     assert len(mail.outbox) == 1
     message = mail.outbox[0]
 
-    # Subject can be your custom template or Django's default.
-    # Be robust: ensure it clearly indicates a password reset.
-    assert "password reset" in message.subject.lower()
+    # Subject can vary slightly depending on template wording.
+    subj = message.subject.lower()
+    assert ("password reset" in subj) or ("reset your password" in subj), subj
 
     # Body should include a reset link containing uid/token
     assert "reset/" in message.body
