@@ -4,8 +4,11 @@
 ![Django](https://img.shields.io/badge/django-5.2-green)
 ![Tailwind](https://img.shields.io/badge/tailwind-4.1-blueviolet)
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+![Version](https://img.shields.io/badge/version-v0.1.0--ui--refresh-orange)
 
 Reusable **Django + Tailwind v4 + ShadCN‑Django** scaffold for Language Centre projects.
+
+> **Current baseline:** `v0.1.0-ui-refresh` — UI refresh baseline (responsive navigation, dark/light theming, focus rings, and updated base templates).
 
 This repository provides a clean, modular starting point for building Django applications that need:
 
@@ -37,6 +40,7 @@ This repository provides a clean, modular starting point for building Django app
 6. [Testing](#-testing)
 7. [License](#-license)
 8. [Contributing](#-contributing)
+9. [Changelog](#-changelog)
 
 ---
 
@@ -517,88 +521,23 @@ from datetime import timedelta
 PASSWORD_RESET_TIMEOUT = int(timedelta(hours=24).total_seconds())
 ```
 
+### 🧩 Changelog
 
-## 🧭 UI Refresh Checklist (snapshot)
-
-> Source: `ui_refresh_checklist.md`. Quick snapshot for convenience.
->
-> ---
-# 🧭 LangCen UI Refresh — Quick Checklist
-
-## ✅ DONE (Phase 1)
-
-### 🔹 Navigation
-- [x] Responsive navbar (desktop + mobile)
-- [x] Active link highlighting via templatetag
-- [x] Modular partials (`logo`, `theme_toggle`, `navbar`, `header`)
-- [x] Proper order + alignment of theme toggle and icons
-
-### 🔹 Branding
-- [x] Logo swap (light/dark: `logo-cap.svg`, `logo-cap-blue.svg`)
-- [x] Accessible dark/light toggling with Tailwind classes
-
-### 🔹 Theming
-- [x] Alpine store + `window.deferLoadingAlpine()` fix
-- [x] Theme persistence via `localStorage`
-- [x] Tailwind v4 tokens (`bg-background`, `text-foreground`, etc.)
-
-### 🔹 Footer
-- [x] University-style layout with Cambridge logo
-- [x] Fully theme-aware (light/dark)
-- [x] Responsive stacked/side-by-side design
-- [x] Stable logo sizing using Tailwind height utilities
-
-### 🔹 Cookie Banner
-- [x] CIVIC integrated (`core/partials/scripts.html`)
-- [x] CSRF-safe with `csrftoken` + `sessionid`
-- [x] Stub ready for Analytics
-
-### 🔹 Messages UI
-- [x] Themed dismissible alerts
-- [x] Accessible focus/hover states
-- [x] Clean handling of empty or error states
-
-### 🔹 Forms + Auth
-- [x] Reusable field + error partials
-- [x] Custom `add_attrs` filter (`form_extras.py`)
-- [x] Login + Password Reset flow fully styled via Cotton
-- [x] Registration link removed (admin-only policy)
-
-### 🔹 Template System
-- [x] Using `django-cotton` loader stack (Option B)
-- [x] Loaders ordered: Cotton → filesystem → app_directories
-- [x] Template dirs configured for `core/templates` + shared `/templates`
+#### **v0.1.0‑ui‑refresh (October 2025)**
+**UI Refresh Baseline**
+- Responsive navigation (desktop + mobile)
+- Light/dark/system theming via Tailwind v4 tokens
+- Focus rings and accessibility improvements
+- Modular partials: header, footer, logo, theme toggle
+- Updated favicon and meta tags
+- Role-safe redirects for dashboard links
+- Themed Django messages
+- README + Ruff/Black config cleanup
 
 ---
 
-## 🚧 TODO (Phase 2)
+For full documentation, see the repo at [github.com/pedbad/langcen_base](https://github.com/pedbad/langcen_base).
 
-### A. Auth polish
-- [ ] Add `logged_out.html` (optional logout confirmation page)
-- [ ] Verify SMTP for password reset emails
-- [ ] Restrict `/register` route with `@staff_member_required`
-
-### B. Footer finishing
-- [ ] Replace placeholder links (T&C, Accessibility, Support)
-- [ ] Finalize logo sizes (Cambridge + eLearning)
-
-### C. Base layout & meta
-- [ ] Add favicons + theme-color meta tags
-- [ ] Add Open Graph / social meta
-- [ ] Check header–main–footer spacing on mobile
-
-### D. Mobile nav polish
-- [ ] Add `x-transition` slide/fade animations
-- [ ] (Optional) Persist menu open state in Alpine store
-
-### E. Token QA
-- [ ] Verify contrast + hover/focus states on About / Landing
-
-### F. Error pages
-- [ ] Create themed `core/404.html` + `core/500.html`
-
-### G. Cookie banner analytics
-- [ ] Implement `onAccept` / `onRevoke` hooks for GA or Matomo
 
 ---
 
