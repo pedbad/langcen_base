@@ -230,12 +230,13 @@ PASSWORD_RESET_TIMEOUT = int(timedelta(hours=24).total_seconds())
 
 TEACHER_ADMIN_FULL_PERMS = True
 
+
 if ENV == "dev":
-    EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
-    # Write to repo-root/tmp_emails
-    EMAIL_FILE_PATH = BASE_DIR.parent / "tmp_emails"
+    EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "django.core.mail.backends.filebased.EmailBackend")
+    # Let .env override the default tmp_emails path:
+    _default_email_dir = BASE_DIR.parent / "tmp_emails"
+    EMAIL_FILE_PATH = os.getenv("EMAIL_FILE_PATH", str(_default_email_dir))
 else:
-    # Example SMTP; configure via environment variables in production
     EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "django.core.mail.backends.smtp.EmailBackend")
     EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.sendgrid.net")
     EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
