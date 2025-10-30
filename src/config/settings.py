@@ -42,6 +42,10 @@ ALLOWED_HOSTS = [h.strip() for h in os.getenv("ALLOWED_HOSTS", "localhost,127.0.
 _default_origin = "http://127.0.0.1:8000" if ENV == "dev" else ""
 SITE_ORIGIN = os.getenv("SITE_ORIGIN", _default_origin)
 SITE_NAME = os.getenv("SITE_NAME", "LangCen Base")
+SITE_DESCRIPTION = os.getenv(
+    "SITE_DESCRIPTION",
+    "LangCon — a clean, accessible Django 5 + Tailwind v4 starter.",
+)
 
 
 # Application definition
