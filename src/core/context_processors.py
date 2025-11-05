@@ -1,3 +1,4 @@
+# src/core/context_processor.py
 from django.conf import settings
 
 
